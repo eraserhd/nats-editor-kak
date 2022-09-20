@@ -6,6 +6,6 @@ buildGo119Module {
   pname = "nats-editor-kak";
   version = "0.1.0";
   src = ./.;
-  vendorSha256 = "BzVGuisFW2iJWttsx9OUcHvLOmazEYCw+SDORYZmS6o=";
+  vendorSha256 = "a2nddJIM5Ui1maLz2hZUssksXmvI+VQyqc5aMfZ1TbY=";
 }
 
