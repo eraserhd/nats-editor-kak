@@ -1,0 +1,4 @@
+nats-editor-kak
+===============
+
+TODO: fill me in
