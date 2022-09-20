@@ -19,6 +19,11 @@
             : ${nats-editor-kak}
           '';
         };
+        devShells.default = pkgs.mkShell {
+          nativeBuildInputs = with pkgs; [
+            go_1_19
+          ];
+        };
     })) // {
       overlays.default = final: prev: {
         nats-editor-kak = prev.callPackage ./derivation.nix {};
