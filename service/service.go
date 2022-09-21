@@ -20,6 +20,24 @@ type OpenCmd struct {
 	Script  string
 }
 
+func (o OpenCmd) Run(msg *nats.Msg) error {
+	cmd := exec.Command("kak", "-p", o.Session)
+	in, err := cmd.StdinPipe()
+	if err != nil {
+		return fmt.Errorf("error creating pipe: %w", err)
+	}
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("error starting kak: %w", err)
+	}
+	if _, err := in.Write([]byte(o.Script)); err != nil {
+		return fmt.Errorf("error writing script: %w", err)
+	}
+	if err := cmd.Wait(); err != nil {
+		return fmt.Errorf("error responding: %w", err)
+	}
+	return nil
+}
+
 func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 	return OpenCmd{Session: msg.Header.Get("Session")}
 }
@@ -43,38 +61,13 @@ func (s *Service) Run() error {
 		log.Printf("recieved %q", string(msg.Data))
 
 		open := s.OpenCommand(msg)
-
-		cmd := exec.Command("kak", "-p", open.Session)
-		in, err := cmd.StdinPipe()
-		if err != nil {
-			log.Printf("error creating pipe: %v", err)
+		if err := open.Run(msg); err != nil {
+        		log.Print(err)
 			if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
 				log.Printf("error responding: %v", err)
 			}
 			continue
 		}
-		if err := cmd.Start(); err != nil {
-			log.Printf("error starting kak: %v", err)
-			if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
-				log.Printf("error responding: %v", err)
-			}
-			continue
-		}
-		if _, err := in.Write([]byte(open.Script)); err != nil {
-			log.Printf("error writing script: %v", err)
-			if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
-				log.Printf("error responding: %v", err)
-			}
-			continue
-		}
-		if err := cmd.Wait(); err != nil {
-			log.Printf("error waiting for kak: %v", err)
-			if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
-				log.Printf("error responding: %v", err)
-			}
-			continue
-		}
-
 		if err := msg.Respond([]byte("ok")); err != nil {
 			log.Printf("error replying ok: %v", err)
 			continue
