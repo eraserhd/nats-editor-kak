@@ -1,7 +1,9 @@
 package service
 
 import (
+	"fmt"
 	"log"
+	"os/exec"
 
 	"github.com/nats-io/nats.go"
 )
@@ -40,7 +42,38 @@ func (s *Service) Run() error {
 		msg := <-ch
 		log.Printf("recieved %q", string(msg.Data))
 
-		_ = s.OpenCommand(msg)
+		open := s.OpenCommand(msg)
+
+		cmd := exec.Command("kak", "-p", open.Session)
+		in, err := cmd.StdinPipe()
+		if err != nil {
+			log.Printf("error creating pipe: %v", err)
+			if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
+				log.Printf("error responding: %v", err)
+			}
+			continue
+		}
+		if err := cmd.Start(); err != nil {
+			log.Printf("error starting kak: %v", err)
+			if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
+				log.Printf("error responding: %v", err)
+			}
+			continue
+		}
+		if _, err := in.Write([]byte(open.Script)); err != nil {
+			log.Printf("error writing script: %v", err)
+			if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
+				log.Printf("error responding: %v", err)
+			}
+			continue
+		}
+		if err := cmd.Wait(); err != nil {
+			log.Printf("error waiting for kak: %v", err)
+			if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
+				log.Printf("error responding: %v", err)
+			}
+			continue
+		}
 
 		if err := msg.Respond([]byte("ok")); err != nil {
 			log.Printf("error replying ok: %v", err)
