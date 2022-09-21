@@ -19,7 +19,7 @@ type OpenCmd struct {
 }
 
 func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
-	return OpenCmd{}
+	return OpenCmd{Session: msg.Header.Get("Session")}
 }
 
 func (s *Service) Run() error {
