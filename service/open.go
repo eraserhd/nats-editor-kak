@@ -9,7 +9,7 @@ import (
 
 type OpenCmd struct {
 	Session string
-	Script  string
+	OldScript  string
 }
 
 func quote(s string) string {
@@ -27,6 +27,6 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 	u, _ := url.Parse(string(msg.Data))
 	return OpenCmd{
 		Session: msg.Header.Get("Session"),
-		Script:  fmt.Sprintf("edit -existing %s", quote(u.Path)),
+		OldScript:  fmt.Sprintf("edit -existing %s", quote(u.Path)),
 	}
 }
