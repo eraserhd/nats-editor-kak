@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 	"log"
-	"net/url"
 	"os/exec"
 
 	"github.com/nats-io/nats.go"
@@ -32,25 +31,6 @@ func (o OpenCmd) Run(msg *nats.Msg) error {
 		return fmt.Errorf("error responding: %w", err)
 	}
 	return nil
-}
-
-func quote(s string) string {
-	result := "'"
-	for _, ch := range s {
-		if ch == '\'' {
-			result += "'"
-		}
-		result += string(ch)
-	}
-	return result + "'"
-}
-
-func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
-	u, _ := url.Parse(string(msg.Data))
-	return OpenCmd{
-		Session: msg.Header.Get("Session"),
-		Script:  fmt.Sprintf("edit -existing %s", quote(u.Path)),
-	}
 }
 
 func (s *Service) Run() error {
