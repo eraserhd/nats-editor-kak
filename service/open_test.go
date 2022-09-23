@@ -42,6 +42,14 @@ func Test_Open_uses_editor_session_when_sent(t *testing.T) {
 }
 
 func Test_Opens_file_URL(t *testing.T) {
-	script := open(t, data("file:///foo/bar.txt")).Script
-	assert.Contains(t, script, "edit -existing '/foo/bar.txt'")
+	assert.Contains(t,
+		open(t, data("file:///foo/bar.txt")).Script,
+		"edit -existing '/foo/bar.txt'",
+	)
+	t.Run("quotes apostrophes in the filename", func(t *testing.T) {
+		assert.Contains(t,
+			open(t, data("file:///foo/b'ar.txt")).Script,
+			"edit -existing '/foo/b''ar.txt'",
+		)
+	})
 }
