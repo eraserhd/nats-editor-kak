@@ -42,9 +42,9 @@ func Test_Open_uses_editor_session_when_sent(t *testing.T) {
 }
 
 func Test_Opens_file_URL(t *testing.T) {
-	assert.Contains(t,
-		open(t, data("file:///foo/bar.txt")).OldScript,
-		"edit -existing '/foo/bar.txt'",
+	assert.Equal(t,
+		open(t, data("file:///foo/bar.txt")).Script.QuotedFilename,
+		"'/foo/bar.txt'",
 	)
 	t.Run("quotes apostrophes in the filename", func(t *testing.T) {
 		assert.Contains(t,
