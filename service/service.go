@@ -16,11 +16,6 @@ func New() (*Service, error) {
 	return &Service{}, nil
 }
 
-type OpenCmd struct {
-	Session string
-	Script  string
-}
-
 func (o OpenCmd) Run(msg *nats.Msg) error {
 	cmd := exec.Command("kak", "-p", o.Session)
 	in, err := cmd.StdinPipe()
