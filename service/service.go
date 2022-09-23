@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os/exec"
 
 	"github.com/nats-io/nats.go"
@@ -39,7 +40,11 @@ func (o OpenCmd) Run(msg *nats.Msg) error {
 }
 
 func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
-	return OpenCmd{Session: msg.Header.Get("Session")}
+	u, _ := url.Parse(string(msg.Data))
+	return OpenCmd{
+		Session: msg.Header.Get("Session"),
+		Script:  fmt.Sprintf("edit -existing '%s'", u.Path),
+	}
 }
 
 func (s *Service) Run() error {
@@ -62,7 +67,7 @@ func (s *Service) Run() error {
 
 		open := s.OpenCommand(msg)
 		if err := open.Run(msg); err != nil {
-        		log.Print(err)
+			log.Print(err)
 			if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
 				log.Printf("error responding: %v", err)
 			}
