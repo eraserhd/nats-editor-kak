@@ -10,9 +10,9 @@ import (
 
 type openOption = func(msg *nats.Msg)
 
-func session(name string) openOption {
+func header(name, value string) openOption {
 	return func(msg *nats.Msg) {
-		msg.Header["Session"] = []string{name}
+        	msg.Header[name] = []string{value}
 	}
 }
 
@@ -38,7 +38,7 @@ func open(t *testing.T, opts ...openOption) OpenCmd {
 }
 
 func Test_Open_uses_editor_session_when_sent(t *testing.T) {
-	assert.Equal(t, "foo", open(t, session("foo")).Session)
+	assert.Equal(t, "foo", open(t, header("Session", "foo")).Session)
 }
 
 func Test_Opens_file_URL(t *testing.T) {
