@@ -13,6 +13,7 @@ var templ = template.Must(template.New("script").Parse(`
 `))
 
 type Script struct {
+	Client         string
 	QuotedFilename string
 }
 
@@ -23,8 +24,8 @@ func (s Script) String() string {
 }
 
 type OpenCmd struct {
-	Session   string
-	Script    Script
+	Session string
+	Script  Script
 }
 
 func quote(s string) string {
@@ -43,6 +44,7 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 	result := OpenCmd{
 		Session: msg.Header.Get("Session"),
 		Script: Script{
+			Client:         "%opt{jumpclient}",
 			QuotedFilename: quote(u.Path),
 		},
 	}

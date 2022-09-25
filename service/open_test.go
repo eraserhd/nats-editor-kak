@@ -41,6 +41,11 @@ func Test_Open_uses_editor_session_when_sent(t *testing.T) {
 	assert.Equal(t, "foo", open(t, header("Session", "foo")).Session)
 }
 
+func Test_Defaults_client_to_jumpclient_option(t *testing.T) {
+        client := open(t, header("Window", "slime")).Script.Client
+        assert.Equal(t, client, "%opt{jumpclient}")
+}
+
 func Test_Opens_file_URL(t *testing.T) {
 	assert.Equal(t,
 		open(t, data("file:///foo/bar.txt")).Script.QuotedFilename,
