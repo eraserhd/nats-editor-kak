@@ -48,8 +48,8 @@ func Test_Opens_file_URL(t *testing.T) {
 	)
 	t.Run("quotes apostrophes in the filename", func(t *testing.T) {
 		assert.Contains(t,
-			open(t, data("file:///foo/b'ar.txt")).OldScript,
-			"edit -existing '/foo/b''ar.txt'",
+			open(t, data("file:///foo/b'ar.txt")).Script.QuotedFilename,
+			"'/foo/b''ar.txt'",
 		)
 	})
 }

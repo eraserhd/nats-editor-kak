@@ -24,7 +24,7 @@ func (o OpenCmd) Run(msg *nats.Msg) error {
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("error starting kak: %w", err)
 	}
-	if _, err := in.Write([]byte(o.OldScript)); err != nil {
+	if _, err := in.Write([]byte(o.Script.String())); err != nil {
 		return fmt.Errorf("error writing script: %w", err)
 	}
 	if err := cmd.Wait(); err != nil {

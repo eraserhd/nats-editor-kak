@@ -25,7 +25,6 @@ func (s Script) String() string {
 type OpenCmd struct {
 	Session   string
 	Script    Script
-	OldScript string
 }
 
 func quote(s string) string {
@@ -42,11 +41,10 @@ func quote(s string) string {
 func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 	u, _ := url.Parse(string(msg.Data))
 	result := OpenCmd{
-		Session:   msg.Header.Get("Session"),
+		Session: msg.Header.Get("Session"),
 		Script: Script{
 			QuotedFilename: quote(u.Path),
 		},
 	}
-	result.OldScript = result.Script.String()
 	return result
 }
