@@ -27,6 +27,9 @@ func (o OpenCmd) Run(msg *nats.Msg) error {
 	if _, err := in.Write([]byte(o.Script.String())); err != nil {
 		return fmt.Errorf("error writing script: %w", err)
 	}
+	if err := in.Close(); err != nil {
+		return fmt.Errorf("closing pipe: %v", err)
+	}
 	if err := cmd.Wait(); err != nil {
 		return fmt.Errorf("error responding: %w", err)
 	}
