@@ -56,5 +56,8 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 			QuotedFilename: quote(u.Path),
 		},
 	}
+	if w := msg.Header.Get("Window"); w != "" {
+        	result.Script.Client = quote(w)
+	}
 	return result
 }

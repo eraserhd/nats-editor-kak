@@ -12,7 +12,7 @@ type openOption = func(msg *nats.Msg)
 
 func header(name, value string) openOption {
 	return func(msg *nats.Msg) {
-        	msg.Header[name] = []string{value}
+		msg.Header[name] = []string{value}
 	}
 }
 
@@ -42,8 +42,13 @@ func Test_Open_uses_editor_session_when_sent(t *testing.T) {
 }
 
 func Test_Defaults_client_to_jumpclient_option(t *testing.T) {
-        client := open(t, header("Window", "slime")).Script.Client
-        assert.Equal(t, client, "%opt{jumpclient}")
+	client := open(t).Script.Client
+	assert.Equal(t, client, "%opt{jumpclient}")
+}
+
+func Test_Allows_override_of_client_and_quotes_it(t *testing.T) {
+	client := open(t, header("Window", "slime")).Script.Client
+	assert.Equal(t, client, "'slime'")
 }
 
 func Test_Opens_file_URL(t *testing.T) {
