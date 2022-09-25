@@ -8,14 +8,16 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-var templ = template.Must(template.New("script").Parse(`
-        edit -existing {{.QuotedFilename}}
-`))
-
 type Script struct {
 	Client         string
 	QuotedFilename string
 }
+
+var templ = template.Must(template.New("script").Parse(`
+  evalutate-commands -try-client {{.Client}} %{
+    edit -existing {{.QuotedFilename}}
+  }
+`))
 
 func (s Script) String() string {
 	buf := &bytes.Buffer{}
