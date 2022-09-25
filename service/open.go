@@ -15,7 +15,13 @@ type Script struct {
 
 var templ = template.Must(template.New("script").Parse(`
   evalutate-commands -try-client {{.Client}} %{
-    edit -existing {{.QuotedFilename}}
+    try %{
+      edit -existing {{.QuotedFilename}}
+      try focus
+    } catch %{
+      echo -markup "{Error}%val{error}"
+      echo -debug "%val{error}"
+    }
   }
 `))
 
