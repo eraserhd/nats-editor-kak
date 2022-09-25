@@ -27,14 +27,17 @@ func open(t *testing.T, opts ...openOption) OpenCmd {
 	require.NoError(t, err)
 	msg := &nats.Msg{
 		Subject: "editor.open",
-		Header: map[string][]string{
-			"Session": {"editorsession"},
-		},
+		Header:  map[string][]string{},
 	}
 	for _, opt := range opts {
 		opt(msg)
 	}
 	return s.OpenCommand(msg)
+}
+
+func Test_Defaults_session_to_kakoune(t *testing.T) {
+	sess := open(t).Session
+	assert.Equal(t, "kakoune", sess)
 }
 
 func Test_Open_uses_editor_session_when_sent(t *testing.T) {
@@ -43,7 +46,7 @@ func Test_Open_uses_editor_session_when_sent(t *testing.T) {
 
 func Test_Defaults_client_to_jumpclient_option(t *testing.T) {
 	client := open(t).Script.Client
-	assert.Equal(t, client, "%opt{jumpclient}")
+	assert.Equal(t, "%opt{jumpclient}", client)
 }
 
 func Test_Allows_override_of_client_and_quotes_it(t *testing.T) {

@@ -50,14 +50,17 @@ func quote(s string) string {
 func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 	u, _ := url.Parse(string(msg.Data))
 	result := OpenCmd{
-		Session: msg.Header.Get("Session"),
+		Session: "kakoune",
 		Script: Script{
 			Client:         "%opt{jumpclient}",
 			QuotedFilename: quote(u.Path),
 		},
 	}
+	if s := msg.Header.Get("Session"); s != "" {
+		result.Session = s
+	}
 	if w := msg.Header.Get("Window"); w != "" {
-        	result.Script.Client = quote(w)
+		result.Script.Client = quote(w)
 	}
 	return result
 }
