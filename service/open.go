@@ -28,6 +28,7 @@ var templ = template.Must(template.New("script").Parse(`
   evaluate-commands -try-client {{.Client}} %{
     try %{
       edit -existing {{.QuotedFilename}}
+      select {{.Selection.Start.Line}}.{{.Selection.Start.Column}},{{.Selection.End.Line}}.{{.Selection.End.Column}}
       try focus
     } catch %{
       echo -markup "{Error}%val{error}"
