@@ -2,14 +2,12 @@ package service
 
 import (
 	"bytes"
-	"errors"
-	"fmt"
 	"net/url"
-	"regexp"
-	"strconv"
 	"text/template"
 
 	"github.com/nats-io/nats.go"
+
+	"github.com/eraserhd/nats-editor-kak/service/fragment"
 )
 
 type Script struct {
@@ -38,8 +36,6 @@ var templ = template.Must(template.New("script").Parse(`
   }
 `))
 
-var fragmentRegexp = regexp.MustCompile(`^line=(\d+)`)
-
 func (s Script) String() string {
 	buf := &bytes.Buffer{}
 	_ = templ.Execute(buf, s)
@@ -62,17 +58,6 @@ func quote(s string) string {
 	return result + "'"
 }
 
-func parseFragment(fragment string) (int, error) {
-	match := fragmentRegexp.FindStringSubmatch(fragment)
-	if match == nil {
-		return 0, errors.New("cannot parse fragment identifier")
-	}
-	line, err := strconv.ParseInt(match[1], 10, 64)
-	if err != nil {
-		return 0, fmt.Errorf("parsing fragment identifer: %w", err)
-	}
-	return int(line), nil
-}
 
 func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 	u, _ := url.Parse(string(msg.Data))
@@ -87,7 +72,7 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 			},
 		},
 	}
-	if line, err := parseFragment(u.Fragment); err == nil {
+	if line, err := fragment.Parse(u.Fragment); err == nil {
 		result.Script.Selection = Selection{
 			Start: Position{int(line) + 1, 1},
 			End:   Position{int(line) + 1, 1},
