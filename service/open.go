@@ -2,6 +2,8 @@ package service
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -60,6 +62,18 @@ func quote(s string) string {
 	return result + "'"
 }
 
+func parseFragment(fragment string) (int, error) {
+	match := fragmentRegexp.FindStringSubmatch(fragment)
+	if match == nil {
+		return 0, errors.New("cannot parse fragment identifier")
+	}
+	line, err := strconv.ParseInt(match[1], 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("parsing fragment identifer: %w", err)
+	}
+	return int(line), nil
+}
+
 func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 	u, _ := url.Parse(string(msg.Data))
 	result := OpenCmd{
@@ -73,8 +87,7 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 			},
 		},
 	}
-	if match := fragmentRegexp.FindStringSubmatch(u.Fragment); match != nil {
-		line, _ := strconv.ParseInt(match[1], 10, 64)
+	if line, err := parseFragment(u.Fragment); err == nil {
 		result.Script.Selection = Selection{
 			Start: Position{int(line) + 1, 1},
 			End:   Position{int(line) + 1, 1},
