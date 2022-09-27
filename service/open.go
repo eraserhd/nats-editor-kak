@@ -11,6 +11,15 @@ import (
 type Script struct {
 	Client         string
 	QuotedFilename string
+	Selection      Selection
+}
+
+type Selection struct {
+	Start, End Position
+}
+
+type Position struct {
+	Line, Column int
 }
 
 var templ = template.Must(template.New("script").Parse(`
@@ -54,6 +63,10 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 		Script: Script{
 			Client:         "%opt{jumpclient}",
 			QuotedFilename: quote(u.Path),
+			Selection: Selection{
+				Start: Position{1, 1},
+				End:   Position{1, 1},
+			},
 		},
 	}
 	if s := msg.Header.Get("Session"); s != "" {

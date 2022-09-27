@@ -65,3 +65,13 @@ func Test_Opens_file_URL(t *testing.T) {
 		assert.Contains(t, filename, "'/foo/b''ar.txt'")
 	})
 }
+
+func Test_Sets_editor_position(t *testing.T) {
+	t.Run("defaults to line 1, column 1", func(t *testing.T) {
+		sel := open(t).Script.Selection
+		assert.Equal(t, sel, Selection{
+			Start: Position{1, 1},
+			End:   Position{1, 1},
+		})
+	})
+}
