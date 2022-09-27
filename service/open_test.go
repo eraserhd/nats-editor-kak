@@ -74,4 +74,11 @@ func Test_Sets_editor_position(t *testing.T) {
 			End:   Position{1, 1},
 		})
 	})
+	t.Run("sets line number when given in URL", func(t *testing.T) {
+		sel := open(t, data("file:///foo/bar.txt#line=42")).Script.Selection
+		assert.Equal(t, sel, Selection{
+			Start: Position{43, 1},
+			End:   Position{43, 1},
+		})
+	})
 }
