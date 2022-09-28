@@ -14,6 +14,7 @@ type Script struct {
 	Client         string
 	QuotedFilename string
 	Selection      Selection
+	FixupKeys      string
 }
 
 type Selection struct {
@@ -28,7 +29,10 @@ var templ = template.Must(template.New("script").Parse(`
   evaluate-commands -try-client {{.Client}} %{
     try %{
       edit -existing {{.QuotedFilename}}
-      select {{.Selection.Start.Line}}.{{.Selection.Start.Column}},{{.Selection.End.Line}}.{{.Selection.End.Column}}
+      select -codepoint {{.Selection.Start.Line}}.{{.Selection.Start.Column}},{{.Selection.End.Line}}.{{.Selection.End.Column}}
+      {{ if ne .FixupKeys "" -}}
+      execute-keys {{.FixupKeys}}
+      {{- end }}
       try focus
     } catch %{
       echo -markup "{Error}%val{error}"
@@ -59,7 +63,6 @@ func quote(s string) string {
 	return result + "'"
 }
 
-
 func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 	u, _ := url.Parse(string(msg.Data))
 	result := OpenCmd{
@@ -73,10 +76,14 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 			},
 		},
 	}
-	if line, err := fragment.Parse(u.Fragment); err == nil {
+	if line, endLine, err := fragment.Parse(u.Fragment); err == nil {
 		result.Script.Selection = Selection{
 			Start: Position{int(line) + 1, 1},
 			End:   Position{int(line) + 1, 1},
+		}
+		if line != endLine {
+			result.Script.Selection.End.Line = int(endLine) - 1
+        		result.Script.FixupKeys = "'x'" // FIXME: Only for line ranges
 		}
 	}
 	if s := msg.Header.Get("Session"); s != "" {
