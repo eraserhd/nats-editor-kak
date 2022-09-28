@@ -74,6 +74,7 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 				Start: Position{1, 1},
 				End:   Position{1, 1},
 			},
+			FixupKeys: "''",
 		},
 	}
 	if line, endLine, err := fragment.Parse(u.Fragment); err == nil {
@@ -83,7 +84,7 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 		}
 		if line != endLine {
 			result.Script.Selection.End.Line = int(endLine) - 1
-        		result.Script.FixupKeys = "'x'" // FIXME: Only for line ranges
+			result.Script.FixupKeys = "'x'"
 		}
 	}
 	if s := msg.Header.Get("Session"); s != "" {

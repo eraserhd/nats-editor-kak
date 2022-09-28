@@ -68,18 +68,20 @@ func Test_Opens_file_URL(t *testing.T) {
 
 func Test_Sets_editor_position(t *testing.T) {
 	t.Run("defaults to line 1, column 1", func(t *testing.T) {
-		sel := open(t).Script.Selection
-		assert.Equal(t, sel, Selection{
+		script := open(t).Script
+		assert.Equal(t, script.Selection, Selection{
 			Start: Position{1, 1},
 			End:   Position{1, 1},
 		})
+		assert.Equal(t, script.FixupKeys, "''")
 	})
 	t.Run("sets line number when given in URL", func(t *testing.T) {
-		sel := open(t, data("file:///foo/bar.txt#line=42")).Script.Selection
-		assert.Equal(t, sel, Selection{
+		script := open(t, data("file:///foo/bar.txt#line=42")).Script
+		assert.Equal(t, script.Selection, Selection{
 			Start: Position{43, 1},
 			End:   Position{43, 1},
 		})
+		assert.Equal(t, script.FixupKeys, "''")
 	})
 	t.Run("set line range when given in URL", func(t *testing.T) {
 		script := open(t, data("file:///foo/bar.txt#line=42,47")).Script
