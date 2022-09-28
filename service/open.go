@@ -79,10 +79,10 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 	}
 	if line, endLine, err := fragment.Parse(u.Fragment); err == nil {
 		result.Script.Selection = Selection{
-			Start: Position{int(line) + 1, 1},
-			End:   Position{int(line) + 1, 1},
+			Start: Position{int(line.StartLine) + 1, 1},
+			End:   Position{int(line.StartLine) + 1, 1},
 		}
-		if line != endLine {
+		if line.StartLine != endLine {
 			result.Script.Selection.End.Line = int(endLine) - 1
 			result.Script.FixupKeys = "'x'"
 		}
