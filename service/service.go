@@ -44,7 +44,7 @@ func (s *Service) Run() error {
 	defer nc.Close()
 
 	ch := make(chan *nats.Msg, 32)
-	sub, err := nc.ChanSubscribe("editor.open", ch)
+	sub, err := nc.ChanSubscribe("cmd.show.url.file", ch)
 	if err != nil {
 		return err
 	}
