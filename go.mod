@@ -1,4 +1,4 @@
-module github.com/eraserhd/nats-editor-kak
+module github.com/plugbench/kakoune-pluggo
 
 go 1.19
 

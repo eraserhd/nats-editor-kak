@@ -7,7 +7,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"github.com/eraserhd/nats-editor-kak/service/fragment"
+	"github.com/plugbench/kakoune-pluggo/service/fragment"
 )
 
 type Script struct {

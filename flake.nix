@@ -7,16 +7,16 @@
     (flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        nats-editor-kak = pkgs.callPackage ./derivation.nix {};
+        kakoune-pluggo = pkgs.callPackage ./derivation.nix {};
       in {
         packages = {
-          default = nats-editor-kak;
-          inherit nats-editor-kak;
+          default = kakoune-pluggo;
+          inherit kakoune-pluggo;
         };
         checks = {
-          test = pkgs.runCommandNoCC "nats-editor-kak-test" {} ''
+          test = pkgs.runCommandNoCC "kakoune-pluggo-test" {} ''
             mkdir -p $out
-            : ${nats-editor-kak}
+            : ${kakoune-pluggo}
           '';
         };
         devShells.default = pkgs.mkShell {
@@ -26,7 +26,7 @@
         };
     })) // {
       overlays.default = final: prev: {
-        nats-editor-kak = prev.callPackage ./derivation.nix {};
+        kakoune-pluggo = prev.callPackage ./derivation.nix {};
       };
     };
 }

@@ -1,4 +1,4 @@
-nats-editor-kak
-===============
+kakoune-pluggo
+==============
 
-TODO: fill me in
+Plugbench support for https://github.com/mawww/kakoune[Kakoune].

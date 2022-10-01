@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/eraserhd/nats-editor-kak/service"
+	"github.com/plugbench/kakoune-pluggo/service"
 )
 
 func main() {
