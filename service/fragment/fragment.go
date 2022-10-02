@@ -25,26 +25,26 @@ func Parse(fragment string) (LineFragment, error) {
 	if match == nil {
 		return result, errors.New("cannot parse fragment identifier")
 	}
-	line, err := strconv.ParseInt(match[1], 10, 64)
-	if err != nil {
-		return result, fmt.Errorf("parsing fragment identifer: %w", err)
-	}
-	result.Start.Line = int(line)
-	result.End.Line = int(line)
-	if match[2] != "" {
-		endLine, _ := strconv.ParseInt(match[2], 10, 64)
-		result.Start.Column = int(endLine)
-	}
-	if match[3] != "" {
-		endLine, err := strconv.ParseInt(match[3], 10, 64)
-		if err != nil {
-			return result, fmt.Errorf("parsing fragment identifier: %w", err)
+	var parts [4]int64
+	for i := 0; i < 4; i++ {
+		if match[i+1] == "" {
+			continue
 		}
-		result.End.Line = int(endLine)
+		var err error
+		parts[i], err = strconv.ParseInt(match[i+1], 10, 64)
+		if err != nil {
+			return result, fmt.Errorf("parsing %q: %w", parts[i], err)
+		}
 	}
-	if match[4] != "" {
-		endLine, _ := strconv.ParseInt(match[4], 10, 64)
-		result.End.Column = int(endLine)
+
+	result.Start.Line = int(parts[0])
+	result.Start.Column = int(parts[1])
+	if parts[2] != 0 {
+		result.End.Line = int(parts[2])
+		result.End.Column = int(parts[3])
+	} else {
+		result.End = result.Start
 	}
+
 	return result, nil
 }
