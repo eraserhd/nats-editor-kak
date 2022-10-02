@@ -43,7 +43,7 @@ func Test_line_fragments(t *testing.T) {
 		{
 			desc: "parse char offset",
 			in:   "char=167",
-			out: CharFragment{
+			out: CharSelection{
 				Start: 167,
 				End:   167,
 			},

@@ -23,11 +23,11 @@ type LineAndColumnSelection struct {
 
 func (_ LineAndColumnSelection) isSelection() {}
 
-type CharFragment struct {
+type CharSelection struct {
 	Start, End Offset
 }
 
-func (_ CharFragment) isSelection() {}
+func (_ CharSelection) isSelection() {}
 
 var (
 	charPattern = regexp.MustCompile(`^char=(\d+)$`)
@@ -42,7 +42,7 @@ func Parse(fragment string) (Selection, error) {
 		if err != nil {
 			return nil, fmt.Errorf("parsing %q: %w", match[1], err)
 		}
-		return CharFragment{
+		return CharSelection{
 			Start: int(offset),
 			End:   int(offset),
 		}, nil
