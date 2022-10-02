@@ -14,7 +14,7 @@ func Test_line_fragments(t *testing.T) {
 		{
 			desc: "single line",
 			in:   "line=42",
-			out: LineFragment{
+			out: LineAndColumnSelection{
 				Start: LinePosition{Line: 42},
 				End:   LinePosition{Line: 42},
 			},
@@ -22,7 +22,7 @@ func Test_line_fragments(t *testing.T) {
 		{
 			desc: "start and end lines",
 			in:   "line=12,16",
-			out: LineFragment{
+			out: LineAndColumnSelection{
 				Start: LinePosition{Line: 12},
 				End:   LinePosition{Line: 16},
 			},
@@ -30,7 +30,7 @@ func Test_line_fragments(t *testing.T) {
 		{
 			desc: "lines with columns",
 			in:   "line=17.6,19.3",
-			out: LineFragment{
+			out: LineAndColumnSelection{
 				Start: LinePosition{Line: 17, Column: 6},
 				End:   LinePosition{Line: 19, Column: 3},
 			},

@@ -17,11 +17,11 @@ type LinePosition struct {
 	Line, Column Offset
 }
 
-type LineFragment struct {
+type LineAndColumnSelection struct {
 	Start, End LinePosition
 }
 
-func (_ LineFragment) isSelection() {}
+func (_ LineAndColumnSelection) isSelection() {}
 
 type CharFragment struct {
 	Start, End Offset
@@ -48,7 +48,7 @@ func Parse(fragment string) (Selection, error) {
 		}, nil
 	}
 
-	var result LineFragment
+	var result LineAndColumnSelection
 	match := linePattern.FindStringSubmatch(fragment)
 	if match == nil {
 		return nil, CannotParse
