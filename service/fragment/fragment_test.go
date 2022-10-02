@@ -48,6 +48,14 @@ func Test_line_fragments(t *testing.T) {
 				End:   167,
 			},
 		},
+		{
+			desc: "parse char range",
+			in:   "char=96,107",
+			out: CharSelection{
+				Start: 96,
+				End:   107,
+			},
+		},
 	} {
 		t.Run(testCase.desc, func(t *testing.T) {
 			out, err := Parse(testCase.in)

@@ -30,7 +30,7 @@ type CharSelection struct {
 func (_ CharSelection) isSelection() {}
 
 var (
-	charPattern = regexp.MustCompile(`^char=(\d+)$`)
+	charPattern = regexp.MustCompile(`^char=(\d+)(?:,(\d+))?$`)
 	linePattern = regexp.MustCompile(`^line=(\d+)(?:\.(\d+))?(?:,(\d+)(?:\.(\d+))?)?$`)
 
 	CannotParse = errors.New("cannot parse fragment identifier")
@@ -41,6 +41,16 @@ func Parse(fragment string) (Selection, error) {
 		offset, err := strconv.ParseInt(match[1], 10, 64)
 		if err != nil {
 			return nil, fmt.Errorf("parsing %q: %w", match[1], err)
+		}
+		if match[2] != "" {
+			end, err := strconv.ParseInt(match[2], 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("parsing %q: %w", match[2], err)
+			}
+			return CharSelection{
+				Start: int(offset),
+				End:   int(end),
+			}, nil
 		}
 		return CharSelection{
 			Start: int(offset),
