@@ -80,9 +80,13 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 	if frag, err := fragment.ParseRFC5147FragmentIdentifier(u.Fragment); err == nil {
 		if frag, ok := frag.(fragment.LineAndColumnSelection); ok {
 			if frag.Start == frag.End {
-				// Kakoune doesn't do zero-width selections
+				// Kakoune doesn't do zero-width selections.
 				frag.End.Column++
 			}
+        		// Adjust for Kakoune's 1-based indexing
+			frag.Start.Line++
+			frag.Start.Column++
+			frag.End.Line++
 			if frag.End.Column == 0 {
 				// Kakoune can't select up to the zero-width point at BOL, so if we are trying
 				// to do so, select up to the previous line and extend to EOL with <a-L>
@@ -91,8 +95,8 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 				result.Script.FixupKeys = "'<a-L>'"
 			}
 			result.Script.Selection = Selection{
-				Start: Position{int(frag.Start.Line) + 1, int(frag.Start.Column) + 1},
-				End:   Position{int(frag.End.Line) + 1, int(frag.End.Column)},
+				Start: Position{frag.Start.Line, frag.Start.Column},
+				End:   Position{frag.End.Line, frag.End.Column},
 			}
 		}
 	}
