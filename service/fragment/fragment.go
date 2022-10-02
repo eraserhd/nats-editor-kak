@@ -18,6 +18,13 @@ type LinePosition struct {
 	Line, Column Offset
 }
 
+func (lp LinePosition) fragmentString() string {
+	if lp.Column == 0 {
+		return fmt.Sprintf("%d", lp.Line)
+	}
+	return fmt.Sprintf("%d.%d", lp.Line, lp.Column)
+}
+
 type LineAndColumnSelection struct {
 	Start, End LinePosition
 }
@@ -26,10 +33,7 @@ func (_ LineAndColumnSelection) isSelection() {}
 
 func (lc LineAndColumnSelection) Fragment() string {
 	if lc.End == lc.Start {
-		if lc.Start.Column != 0 {
-			return fmt.Sprintf("line=%d.%d", lc.Start.Line, lc.Start.Column)
-		}
-		return fmt.Sprintf("line=%d", lc.Start.Line)
+		return "line=" + lc.Start.fragmentString()
 	}
 	return fmt.Sprintf("line=%d,%d", lc.Start.Line, lc.End.Line)
 }
