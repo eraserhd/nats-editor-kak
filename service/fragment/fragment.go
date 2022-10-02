@@ -38,23 +38,20 @@ var (
 
 func Parse(fragment string) (Selection, error) {
 	if match := charPattern.FindStringSubmatch(fragment); match != nil {
-		offset, err := strconv.ParseInt(match[1], 10, 64)
+		start, err := strconv.ParseInt(match[1], 10, 64)
 		if err != nil {
 			return nil, fmt.Errorf("parsing %q: %w", match[1], err)
 		}
+		end := start
 		if match[2] != "" {
-			end, err := strconv.ParseInt(match[2], 10, 64)
+			end, err = strconv.ParseInt(match[2], 10, 64)
 			if err != nil {
 				return nil, fmt.Errorf("parsing %q: %w", match[2], err)
 			}
-			return CharSelection{
-				Start: int(offset),
-				End:   int(end),
-			}, nil
 		}
 		return CharSelection{
-			Start: int(offset),
-			End:   int(offset),
+			Start: int(start),
+			End:   int(end),
 		}, nil
 	}
 
