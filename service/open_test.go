@@ -97,6 +97,6 @@ func Test_Sets_editor_position(t *testing.T) {
 			Start: Position{3, 1},
 			End:   Position{5, 1},
 		})
-		assert.Equal(t, script.FixupKeys, "'x'")
+		assert.Equal(t, script.FixupKeys, "'<a-L>'")
 	})
 }
