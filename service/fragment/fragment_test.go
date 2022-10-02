@@ -27,6 +27,14 @@ func Test_line_fragments(t *testing.T) {
 				End:   LinePosition{Line: 16},
 			},
 		},
+		{
+			desc: "lines with columns",
+			in:   "line=17.6,19.3",
+			out: LineFragment{
+				Start: LinePosition{Line: 17, Column: 6},
+				End:   LinePosition{Line: 19, Column: 3},
+			},
+		},
 	} {
 		t.Run(testCase.desc, func(t *testing.T) {
 			out, err := Parse(testCase.in)
