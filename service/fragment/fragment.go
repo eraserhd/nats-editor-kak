@@ -64,8 +64,8 @@ func (cs CharSelection) RFC5147FragmentIdentifier() string {
 }
 
 var (
-	charPattern = regexp.MustCompile(`^char=(\d+)(?:,(\d+))?$`)
-	linePattern = regexp.MustCompile(`^line=(\d+)(?:\.(\d+))?(?:,(\d+)(?:\.(\d+))?)?$`)
+	charPattern = regexp.MustCompile(`^char=(\d+)(?:,(\d+))?(?:;.*)?$`)
+	linePattern = regexp.MustCompile(`^line=(\d+)(?:\.(\d+))?(?:,(\d+)(?:\.(\d+))?)?(?:;.*)?$`)
 
 	CannotParse = errors.New("cannot parse fragment identifier")
 	noMatch     = errors.New("did not match")

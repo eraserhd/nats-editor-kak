@@ -57,6 +57,14 @@ func Test_line_fragments(t *testing.T) {
 			err:  CannotParse,
 		},
 		{
+			desc: "integrity checks are ignored",
+			in:   "line=13;md5=d41d8cd98f00b204e9800998ecf8427e;length=0",
+			out: LineAndColumnSelection{
+				Start: LineAndColumn{Line: 13},
+				End:   LineAndColumn{Line: 13},
+			},
+		},
+		{
 			desc: "parse char offset",
 			in:   "char=167",
 			out: CharSelection{
@@ -70,6 +78,14 @@ func Test_line_fragments(t *testing.T) {
 			out: CharSelection{
 				Start: 96,
 				End:   107,
+			},
+		},
+		{
+			desc: "char integrity checks are ignored",
+			in:   "char=13;md5=d41d8cd98f00b204e9800998ecf8427e;length=0",
+			out: CharSelection{
+				Start: 13,
+				End:   13,
 			},
 		},
 	} {
