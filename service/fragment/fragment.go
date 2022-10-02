@@ -34,25 +34,37 @@ var (
 	linePattern = regexp.MustCompile(`^line=(\d+)(?:\.(\d+))?(?:,(\d+)(?:\.(\d+))?)?$`)
 
 	CannotParse = errors.New("cannot parse fragment identifier")
+	noMatch     = errors.New("did not match")
 )
 
-func Parse(fragment string) (Selection, error) {
-	if match := charPattern.FindStringSubmatch(fragment); match != nil {
-		start, err := strconv.ParseInt(match[1], 10, 64)
+func matchAndExtractOffset(pattern *regexp.Regexp, s string) ([]*Offset, error) {
+	match := pattern.FindStringSubmatch(s)
+	if match == nil {
+		return nil, noMatch
+	}
+	result := make([]*Offset, len(match)-1)
+	for i, s := range match[1:] {
+		if s == "" {
+			continue
+		}
+		var err error
+		val, err := strconv.ParseInt(s, 10, strconv.IntSize)
 		if err != nil {
-			return nil, fmt.Errorf("parsing %q: %w", match[1], err)
+			return nil, err
 		}
-		end := start
-		if match[2] != "" {
-			end, err = strconv.ParseInt(match[2], 10, 64)
-			if err != nil {
-				return nil, fmt.Errorf("parsing %q: %w", match[2], err)
-			}
+		slot := int(val)
+		result[i] = &slot
+	}
+	return result, nil
+}
+
+func Parse(fragment string) (Selection, error) {
+	if parts, err := matchAndExtractOffset(charPattern, fragment); err == nil {
+		sel := CharSelection{Start: *parts[0], End: *parts[0]}
+		if parts[1] != nil {
+			sel.End = *parts[1]
 		}
-		return CharSelection{
-			Start: int(start),
-			End:   int(end),
-		}, nil
+		return sel, nil
 	}
 
 	if match := linePattern.FindStringSubmatch(fragment); match != nil {
