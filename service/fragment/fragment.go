@@ -19,10 +19,12 @@ type LinePosition struct {
 }
 
 func (lp LinePosition) fragmentString() string {
-	if lp.Column == 0 {
+	switch true {
+	case lp.Column == 0:
 		return fmt.Sprintf("%d", lp.Line)
+	default:
+		return fmt.Sprintf("%d.%d", lp.Line, lp.Column)
 	}
-	return fmt.Sprintf("%d.%d", lp.Line, lp.Column)
 }
 
 type LineAndColumnSelection struct {
@@ -32,10 +34,12 @@ type LineAndColumnSelection struct {
 func (_ LineAndColumnSelection) isSelection() {}
 
 func (lc LineAndColumnSelection) Fragment() string {
-	if lc.End == lc.Start {
-		return "line=" + lc.Start.fragmentString()
+	switch true {
+	case lc.Start == lc.End:
+		return fmt.Sprintf("line=%s", lc.Start.fragmentString())
+	default:
+		return fmt.Sprintf("line=%s,%s", lc.Start.fragmentString(), lc.End.fragmentString())
 	}
-	return fmt.Sprintf("line=%d,%d", lc.Start.Line, lc.End.Line)
 }
 
 type CharSelection struct {
