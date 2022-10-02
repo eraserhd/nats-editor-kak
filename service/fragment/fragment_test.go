@@ -8,7 +8,7 @@ func Test_line_fragments(t *testing.T) {
 	for _, testCase := range []struct {
 		desc string
 		in   string
-		out  LineFragment
+		out  Selection
 		err  error
 	}{
 		{
@@ -39,6 +39,14 @@ func Test_line_fragments(t *testing.T) {
 			desc: "parse error",
 			in:   "3ka/3:--",
 			err:  CannotParse,
+		},
+		{
+			desc: "parse char offset",
+			in:   "char=167",
+			out: CharFragment{
+				Start: 167,
+				End:   167,
+			},
 		},
 	} {
 		t.Run(testCase.desc, func(t *testing.T) {

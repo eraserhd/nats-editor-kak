@@ -78,13 +78,15 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 		},
 	}
 	if frag, err := fragment.Parse(u.Fragment); err == nil {
-		result.Script.Selection = Selection{
-			Start: Position{int(frag.Start.Line) + 1, 1},
-			End:   Position{int(frag.Start.Line) + 1, 1},
-		}
-		if frag.Start.Line != frag.End.Line {
-			result.Script.Selection.End.Line = int(frag.End.Line) - 1
-			result.Script.FixupKeys = "'x'"
+		if frag, ok := frag.(fragment.LineFragment); ok {
+			result.Script.Selection = Selection{
+				Start: Position{int(frag.Start.Line) + 1, 1},
+				End:   Position{int(frag.Start.Line) + 1, 1},
+			}
+			if frag.Start.Line != frag.End.Line {
+				result.Script.Selection.End.Line = int(frag.End.Line) - 1
+				result.Script.FixupKeys = "'x'"
+			}
 		}
 	}
 	if s := msg.Header.Get("Session"); s != "" {
