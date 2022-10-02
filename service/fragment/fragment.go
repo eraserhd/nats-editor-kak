@@ -2,7 +2,6 @@ package fragment
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"strconv"
 )
@@ -67,30 +66,21 @@ func Parse(fragment string) (Selection, error) {
 		return sel, nil
 	}
 
-	if match := linePattern.FindStringSubmatch(fragment); match != nil {
-		var parts [4]int64
-		for i := 0; i < 4; i++ {
-			if match[i+1] == "" {
-				continue
-			}
-			var err error
-			parts[i], err = strconv.ParseInt(match[i+1], 10, 64)
-			if err != nil {
-				return nil, fmt.Errorf("parsing %q: %w", parts[i], err)
+	if parts, err := matchAndExtractOffset(linePattern, fragment); err == nil {
+		sel := LineAndColumnSelection{
+			Start: LinePosition{Line: *parts[0]},
+			End:   LinePosition{Line: *parts[0]},
+		}
+		if parts[1] != nil {
+			sel.Start.Column = *parts[1]
+		}
+		if parts[2] != nil {
+			sel.End.Line = *parts[2]
+			if parts[3] != nil {
+				sel.End.Column = *parts[3]
 			}
 		}
-
-		var result LineAndColumnSelection
-		result.Start.Line = int(parts[0])
-		result.Start.Column = int(parts[1])
-		if parts[2] != 0 {
-			result.End.Line = int(parts[2])
-			result.End.Column = int(parts[3])
-		} else {
-			result.End = result.Start
-		}
-
-		return result, nil
+		return sel, nil
 	}
 
 	return nil, CannotParse
