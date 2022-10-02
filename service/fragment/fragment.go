@@ -76,7 +76,7 @@ func Parse(fragment string) (Selection, error) {
 			sel.End.Column = *parts[1]
 		}
 		if parts[2] != nil {
-			sel.End.Line = *parts[2]
+			sel.End = LinePosition{Line: *parts[2]}
 			if parts[3] != nil {
 				sel.End.Column = *parts[3]
 			}

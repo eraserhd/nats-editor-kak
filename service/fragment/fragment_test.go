@@ -44,6 +44,14 @@ func Test_line_fragments(t *testing.T) {
 			},
 		},
 		{
+			desc: "line range with only start column",
+			in:   "line=77.4,78",
+			out: LineAndColumnSelection{
+				Start: LinePosition{Line: 77, Column: 4},
+				End:   LinePosition{Line: 78, Column: 0},
+			},
+		},
+		{
 			desc: "parse error",
 			in:   "3ka/3:--",
 			err:  CannotParse,
