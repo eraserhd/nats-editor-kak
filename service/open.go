@@ -75,7 +75,7 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 				// Kakoune doesn't do zero-width selections.
 				frag.End.Column++
 			}
-        		// Adjust for Kakoune's 1-based indexing
+			// Adjust for Kakoune's 1-based indexing
 			frag.Start.Line++
 			frag.Start.Column++
 			frag.End.Line++
@@ -86,10 +86,7 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 				frag.End.Column = 1
 				result.Script.FixupKeys = "'<a-L>'"
 			}
-			result.Script.Selection = fragment.LineAndColumnSelection{
-				Start: frag.Start,
-				End:   frag.End,
-			}
+			result.Script.Selection = frag
 		}
 	}
 	if s := msg.Header.Get("Session"); s != "" {
