@@ -18,14 +18,14 @@ type LineFragment struct {
 }
 
 var (
-	fragmentRegexp = regexp.MustCompile(`^line=(\d+)(?:\.(\d+))?(?:,(\d+)(?:\.(\d+))?)?$`)
+	linePattern = regexp.MustCompile(`^line=(\d+)(?:\.(\d+))?(?:,(\d+)(?:\.(\d+))?)?$`)
 
 	CannotParse = errors.New("cannot parse fragment identifier")
 )
 
 func Parse(fragment string) (LineFragment, error) {
 	var result LineFragment
-	match := fragmentRegexp.FindStringSubmatch(fragment)
+	match := linePattern.FindStringSubmatch(fragment)
 	if match == nil {
 		return result, CannotParse
 	}
