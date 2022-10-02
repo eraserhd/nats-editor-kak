@@ -97,12 +97,20 @@ func Test_Selection_to_fragment(t *testing.T) {
 		out  string
 	}{
 		{
-			desc: "single line selection",
+			desc: "zero-width, single line selection",
 			in: LineAndColumnSelection{
 				Start: LinePosition{Line: 42},
 				End:   LinePosition{Line: 42},
 			},
 			out: "line=42",
+		},
+		{
+			desc: "zero-width, line and column selection",
+			in: LineAndColumnSelection{
+				Start: LinePosition{Line: 12, Column: 7},
+				End:   LinePosition{Line: 12, Column: 7},
+			},
+			out: "line=12.7",
 		},
 	} {
 		t.Run(testCase.desc, func(t *testing.T) {
