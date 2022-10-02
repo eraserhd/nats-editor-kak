@@ -17,13 +17,17 @@ type LineFragment struct {
 	Start, End LinePosition
 }
 
-var fragmentRegexp = regexp.MustCompile(`^line=(\d+)(?:\.(\d+))?(?:,(\d+)(?:\.(\d+))?)?`)
+var (
+	fragmentRegexp = regexp.MustCompile(`^line=(\d+)(?:\.(\d+))?(?:,(\d+)(?:\.(\d+))?)?`)
+
+	CannotParse = errors.New("cannot parse fragment identifier")
+)
 
 func Parse(fragment string) (LineFragment, error) {
 	var result LineFragment
 	match := fragmentRegexp.FindStringSubmatch(fragment)
 	if match == nil {
-		return result, errors.New("cannot parse fragment identifier")
+		return result, CannotParse
 	}
 	var parts [4]int64
 	for i := 0; i < 4; i++ {
