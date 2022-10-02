@@ -7,18 +7,22 @@ import (
 	"strconv"
 )
 
+// Offset is the basic component for coordinates.
 type Offset = int
 
+// Selection is a possibly zero-width character range in a text document.
 type Selection interface {
 	isSelection()
-	Fragment() string
+
+	// RFC5147FragmentIdentifier returns the fragment identifier (without the #) that identifies this selection.
+	RFC5147FragmentIdentifier() string
 }
 
-type LinePosition struct {
+type LineAndColumn struct {
 	Line, Column Offset
 }
 
-func (lp LinePosition) fragmentString() string {
+func (lp LineAndColumn) fragmentString() string {
 	switch true {
 	case lp.Column == 0:
 		return fmt.Sprintf("%d", lp.Line)
@@ -27,13 +31,14 @@ func (lp LinePosition) fragmentString() string {
 	}
 }
 
+// LineAndColumnSelection represents a selection whose ends are specified in lines and columns.
 type LineAndColumnSelection struct {
-	Start, End LinePosition
+	Start, End LineAndColumn
 }
 
 func (_ LineAndColumnSelection) isSelection() {}
 
-func (lc LineAndColumnSelection) Fragment() string {
+func (lc LineAndColumnSelection) RFC5147FragmentIdentifier() string {
 	switch true {
 	case lc.Start == lc.End:
 		return fmt.Sprintf("line=%s", lc.Start.fragmentString())
@@ -42,13 +47,14 @@ func (lc LineAndColumnSelection) Fragment() string {
 	}
 }
 
+// CharSelection represents a selection whose ends are specified in codepoint offsets.
 type CharSelection struct {
 	Start, End Offset
 }
 
 func (_ CharSelection) isSelection() {}
 
-func (cs CharSelection) Fragment() string {
+func (cs CharSelection) RFC5147FragmentIdentifier() string {
 	switch true {
 	case cs.Start == cs.End:
 		return fmt.Sprintf("char=%d", cs.Start)
@@ -86,7 +92,10 @@ func matchAndParseInts(pattern *regexp.Regexp, s string) ([]*Offset, error) {
 	return result, nil
 }
 
-func Parse(fragment string) (Selection, error) {
+// ParseRFC5147FragmentIdentifier parses fragment into a Selection or returns an error.
+// Selection will have concrete type LineAndColumnSelection or CharSelection, depending on
+// what was parsed.
+func ParseRFC5147FragmentIdentifier(fragment string) (Selection, error) {
 	if parts, err := matchAndParseInts(charPattern, fragment); err == nil {
 		sel := CharSelection{Start: *parts[0], End: *parts[0]}
 		if parts[1] != nil {
@@ -97,15 +106,15 @@ func Parse(fragment string) (Selection, error) {
 
 	if parts, err := matchAndParseInts(linePattern, fragment); err == nil {
 		sel := LineAndColumnSelection{
-			Start: LinePosition{Line: *parts[0]},
-			End:   LinePosition{Line: *parts[0]},
+			Start: LineAndColumn{Line: *parts[0]},
+			End:   LineAndColumn{Line: *parts[0]},
 		}
 		if parts[1] != nil {
 			sel.Start.Column = *parts[1]
 			sel.End.Column = *parts[1]
 		}
 		if parts[2] != nil {
-			sel.End = LinePosition{Line: *parts[2]}
+			sel.End = LineAndColumn{Line: *parts[2]}
 			if parts[3] != nil {
 				sel.End.Column = *parts[3]
 			}

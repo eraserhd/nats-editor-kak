@@ -77,7 +77,7 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 			FixupKeys: "''",
 		},
 	}
-	if frag, err := fragment.Parse(u.Fragment); err == nil {
+	if frag, err := fragment.ParseRFC5147FragmentIdentifier(u.Fragment); err == nil {
 		if frag, ok := frag.(fragment.LineAndColumnSelection); ok {
 			result.Script.Selection = Selection{
 				Start: Position{int(frag.Start.Line) + 1, 1},
