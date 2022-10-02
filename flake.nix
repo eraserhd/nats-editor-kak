@@ -14,7 +14,7 @@
           inherit kakoune-pluggo;
         };
         checks = {
-          test = pkgs.runCommandNoCC "kakoune-pluggo-test" {} ''
+          test = pkgs.runCommand "kakoune-pluggo-test" {} ''
             mkdir -p $out
             : ${kakoune-pluggo}
           '';
