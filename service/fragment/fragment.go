@@ -25,10 +25,13 @@ type LineAndColumnSelection struct {
 func (_ LineAndColumnSelection) isSelection() {}
 
 func (lc LineAndColumnSelection) Fragment() string {
-	if lc.Start.Column != 0 {
-		return fmt.Sprintf("line=%d.%d", lc.Start.Line, lc.Start.Column)
+	if lc.End == lc.Start {
+		if lc.Start.Column != 0 {
+			return fmt.Sprintf("line=%d.%d", lc.Start.Line, lc.Start.Column)
+		}
+		return fmt.Sprintf("line=%d", lc.Start.Line)
 	}
-	return fmt.Sprintf("line=%d", lc.Start.Line)
+	return fmt.Sprintf("line=%d,%d", lc.Start.Line, lc.End.Line)
 }
 
 type CharSelection struct {

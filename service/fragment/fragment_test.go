@@ -112,6 +112,14 @@ func Test_Selection_to_fragment(t *testing.T) {
 			},
 			out: "line=12.7",
 		},
+		{
+			desc: "nonzero-width multi-line selection",
+			in: LineAndColumnSelection{
+				Start: LinePosition{Line: 16},
+				End:   LinePosition{Line: 22},
+			},
+			out: "line=16,22",
+		},
 	} {
 		t.Run(testCase.desc, func(t *testing.T) {
 			out := testCase.in.Fragment()
