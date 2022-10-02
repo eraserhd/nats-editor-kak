@@ -13,14 +13,14 @@ type LinePosition struct {
 	Line, Column Offset
 }
 
-type TextPlainFragmentIdentifier struct {
+type LineFragment struct {
 	Start, End LinePosition
 }
 
 var fragmentRegexp = regexp.MustCompile(`^line=(\d+)(?:,(\d+))?`)
 
-func Parse(fragment string) (TextPlainFragmentIdentifier, error) {
-	var result TextPlainFragmentIdentifier
+func Parse(fragment string) (LineFragment, error) {
+	var result LineFragment
 	match := fragmentRegexp.FindStringSubmatch(fragment)
 	if match == nil {
 		return result, errors.New("cannot parse fragment identifier")
