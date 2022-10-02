@@ -77,13 +77,13 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 			FixupKeys: "''",
 		},
 	}
-	if line, endLine, err := fragment.Parse(u.Fragment); err == nil {
+	if line, err := fragment.Parse(u.Fragment); err == nil {
 		result.Script.Selection = Selection{
 			Start: Position{int(line.Start.Line) + 1, 1},
 			End:   Position{int(line.Start.Line) + 1, 1},
 		}
-		if line.Start.Line != endLine {
-			result.Script.Selection.End.Line = int(endLine) - 1
+		if line.Start.Line != line.End.Line {
+			result.Script.Selection.End.Line = int(line.End.Line) - 1
 			result.Script.FixupKeys = "'x'"
 		}
 	}
