@@ -84,6 +84,8 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 				frag.End.Column++
 			}
 			if frag.End.Column == 0 {
+				// Kakoune can't select up to the zero-width point at BOL, so if we are trying
+				// to do so, select up to the previous line and extend to EOL with <a-L>
 				frag.End.Line--
 				frag.End.Column = 1
 				result.Script.FixupKeys = "'<a-L>'"
