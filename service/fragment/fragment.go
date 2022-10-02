@@ -18,7 +18,7 @@ type LineFragment struct {
 }
 
 var (
-	fragmentRegexp = regexp.MustCompile(`^line=(\d+)(?:\.(\d+))?(?:,(\d+)(?:\.(\d+))?)?`)
+	fragmentRegexp = regexp.MustCompile(`^line=(\d+)(?:\.(\d+))?(?:,(\d+)(?:\.(\d+))?)?$`)
 
 	CannotParse = errors.New("cannot parse fragment identifier")
 )
