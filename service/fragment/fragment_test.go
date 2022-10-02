@@ -125,6 +125,11 @@ func Test_Selection_to_fragment(t *testing.T) {
 			in:   CharSelection{Start: 167, End: 167},
 			out:  "char=167",
 		},
+		{
+			desc: "char range",
+			in:   CharSelection{Start: 49, End: 77},
+			out:  "char=49,77",
+		},
 	} {
 		t.Run(testCase.desc, func(t *testing.T) {
 			out := testCase.in.Fragment()

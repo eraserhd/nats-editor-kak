@@ -49,7 +49,12 @@ type CharSelection struct {
 func (_ CharSelection) isSelection() {}
 
 func (cs CharSelection) Fragment() string {
-	return fmt.Sprintf("char=%d", cs.Start)
+	switch true {
+	case cs.Start == cs.End:
+		return fmt.Sprintf("char=%d", cs.Start)
+	default:
+		return fmt.Sprintf("char=%d,%d", cs.Start, cs.End)
+	}
 }
 
 var (
