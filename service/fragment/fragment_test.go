@@ -35,11 +35,20 @@ func Test_line_fragments(t *testing.T) {
 				End:   LinePosition{Line: 19, Column: 3},
 			},
 		},
+		{
+			desc: "parse error",
+			in:   "3ka/3:--",
+			err:  CannotParse,
+		},
 	} {
 		t.Run(testCase.desc, func(t *testing.T) {
 			out, err := Parse(testCase.in)
-			if err != nil {
-				t.Error(err)
+			if err != testCase.err {
+				if err == nil {
+					t.Errorf("want %v, got no error", testCase.err)
+				} else {
+					t.Errorf("want no error, got %v", err)
+				}
 				return
 			}
 			if out != testCase.out {
