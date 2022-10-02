@@ -6,7 +6,8 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-)
+
+	"github.com/plugbench/kakoune-pluggo/service/fragment")
 
 type openOption = func(msg *nats.Msg)
 
@@ -69,33 +70,33 @@ func Test_Opens_file_URL(t *testing.T) {
 func Test_Sets_editor_position(t *testing.T) {
 	t.Run("defaults to line 1, column 1", func(t *testing.T) {
 		script := open(t).Script
-		assert.Equal(t, script.Selection, Selection{
-			Start: Position{1, 1},
-			End:   Position{1, 1},
+		assert.Equal(t, script.Selection, fragment.LineAndColumnSelection{
+			Start: fragment.LineAndColumn{Line: 1, Column: 1},
+			End:   fragment.LineAndColumn{Line: 1, Column: 1},
 		})
 		assert.Equal(t, script.FixupKeys, "''")
 	})
 	t.Run("sets line number when given in URL", func(t *testing.T) {
 		script := open(t, data("file:///foo/bar.txt#line=42")).Script
-		assert.Equal(t, script.Selection, Selection{
-			Start: Position{43, 1},
-			End:   Position{43, 1},
+		assert.Equal(t, script.Selection, fragment.LineAndColumnSelection{
+			Start: fragment.LineAndColumn{Line: 43, Column: 1},
+			End:   fragment.LineAndColumn{Line: 43, Column: 1},
 		})
 		assert.Equal(t, script.FixupKeys, "''")
 	})
 	t.Run("sets line and column number when given in URL", func(t *testing.T) {
 		script := open(t, data("file:///foo/bar.txt#line=42.3")).Script
-		assert.Equal(t, script.Selection, Selection{
-			Start: Position{43, 4},
-			End:   Position{43, 4},
+		assert.Equal(t, script.Selection, fragment.LineAndColumnSelection{
+			Start: fragment.LineAndColumn{Line: 43, Column: 4},
+			End:   fragment.LineAndColumn{Line: 43, Column: 4},
 		})
 		assert.Equal(t, script.FixupKeys, "''")
 	})
 	t.Run("set line range when given in URL", func(t *testing.T) {
 		script := open(t, data("file:///foo/bar.txt#line=2,5")).Script
-		assert.Equal(t, script.Selection, Selection{
-			Start: Position{3, 1},
-			End:   Position{5, 1},
+		assert.Equal(t, script.Selection, fragment.LineAndColumnSelection{
+			Start: fragment.LineAndColumn{Line: 3, Column: 1},
+			End:   fragment.LineAndColumn{Line: 5, Column: 1},
 		})
 		assert.Equal(t, script.FixupKeys, "'<a-L>'")
 	})

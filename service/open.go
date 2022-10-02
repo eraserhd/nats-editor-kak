@@ -13,16 +13,8 @@ import (
 type Script struct {
 	Client         string
 	QuotedFilename string
-	Selection      Selection
+	Selection      fragment.LineAndColumnSelection
 	FixupKeys      string
-}
-
-type Selection struct {
-	Start, End Position
-}
-
-type Position struct {
-	Line, Column int
 }
 
 var templ = template.Must(template.New("script").Parse(`
@@ -70,9 +62,9 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 		Script: Script{
 			Client:         "%opt{jumpclient}",
 			QuotedFilename: quote(u.Path),
-			Selection: Selection{
-				Start: Position{1, 1},
-				End:   Position{1, 1},
+			Selection: fragment.LineAndColumnSelection{
+				Start: fragment.LineAndColumn{Line: 1, Column: 1},
+				End:   fragment.LineAndColumn{Line: 1, Column: 1},
 			},
 			FixupKeys: "''",
 		},
@@ -94,9 +86,9 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 				frag.End.Column = 1
 				result.Script.FixupKeys = "'<a-L>'"
 			}
-			result.Script.Selection = Selection{
-				Start: Position{frag.Start.Line, frag.Start.Column},
-				End:   Position{frag.End.Line, frag.End.Column},
+			result.Script.Selection = fragment.LineAndColumnSelection{
+				Start: frag.Start,
+				End:   frag.End,
 			}
 		}
 	}
