@@ -20,6 +20,14 @@ func Test_line_fragments(t *testing.T) {
 			},
 		},
 		{
+			desc: "single line and column",
+			in:   "line=42.7",
+			out: LineAndColumnSelection{
+				Start: LinePosition{Line: 42, Column: 7},
+				End:   LinePosition{Line: 42, Column: 7},
+			},
+		},
+		{
 			desc: "start and end lines",
 			in:   "line=12,16",
 			out: LineAndColumnSelection{

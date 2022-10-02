@@ -73,6 +73,7 @@ func Parse(fragment string) (Selection, error) {
 		}
 		if parts[1] != nil {
 			sel.Start.Column = *parts[1]
+			sel.End.Column = *parts[1]
 		}
 		if parts[2] != nil {
 			sel.End.Line = *parts[2]
