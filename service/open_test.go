@@ -83,6 +83,14 @@ func Test_Sets_editor_position(t *testing.T) {
 		})
 		assert.Equal(t, script.FixupKeys, "''")
 	})
+	t.Run("sets line and column number when given in URL", func(t *testing.T) {
+		script := open(t, data("file:///foo/bar.txt#line=42.3")).Script
+		assert.Equal(t, script.Selection, Selection{
+			Start: Position{43, 4},
+			End:   Position{43, 4},
+		})
+		assert.Equal(t, script.FixupKeys, "''")
+	})
 	t.Run("set line range when given in URL", func(t *testing.T) {
 		script := open(t, data("file:///foo/bar.txt#line=2,5")).Script
 		assert.Equal(t, script.Selection, Selection{
