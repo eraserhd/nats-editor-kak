@@ -79,13 +79,18 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 	}
 	if frag, err := fragment.ParseRFC5147FragmentIdentifier(u.Fragment); err == nil {
 		if frag, ok := frag.(fragment.LineAndColumnSelection); ok {
+			if frag.Start == frag.End {
+				// Kakoune doesn't do zero-width selections
+				frag.End.Column++
+			}
+			if frag.End.Column == 0 {
+				frag.End.Line--
+				frag.End.Column = 1
+				result.Script.FixupKeys = "'<a-L>'"
+			}
 			result.Script.Selection = Selection{
 				Start: Position{int(frag.Start.Line) + 1, int(frag.Start.Column) + 1},
-				End:   Position{int(frag.Start.Line) + 1, int(frag.Start.Column) + 1},
-			}
-			if frag.Start.Line != frag.End.Line {
-				result.Script.Selection.End.Line = int(frag.End.Line)
-				result.Script.FixupKeys = "'<a-L>'"
+				End:   Position{int(frag.End.Line) + 1, int(frag.End.Column)},
 			}
 		}
 	}
