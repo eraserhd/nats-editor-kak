@@ -7,9 +7,14 @@ import (
 	"strconv"
 )
 
+type Offset = int
+
+type LinePosition struct {
+	Line, Column Offset
+}
+
 type TextPlainFragmentIdentifier struct {
-	StartLine int
-	EndLine   int
+	Start, End LinePosition
 }
 
 var fragmentRegexp = regexp.MustCompile(`^line=(\d+)(?:,(\d+))?`)
@@ -24,14 +29,14 @@ func Parse(fragment string) (TextPlainFragmentIdentifier, int, error) {
 	if err != nil {
 		return result, 0, fmt.Errorf("parsing fragment identifer: %w", err)
 	}
-	result.StartLine = int(line)
-	result.EndLine = int(line)
+	result.Start.Line = int(line)
+	result.End.Line = int(line)
 	if match[2] != "" {
 		endLine, err := strconv.ParseInt(match[2], 10, 64)
 		if err != nil {
 			return result, 0, fmt.Errorf("parsing fragment identifier: %w", err)
 		}
-		result.EndLine = int(endLine)
+		result.End.Line = int(endLine)
 	}
-	return result, int(result.EndLine), nil
+	return result, int(result.End.Line), nil
 }
