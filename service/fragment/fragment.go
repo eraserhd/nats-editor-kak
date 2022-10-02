@@ -49,7 +49,7 @@ type CharSelection struct {
 func (_ CharSelection) isSelection() {}
 
 func (cs CharSelection) Fragment() string {
-	return ""
+	return fmt.Sprintf("char=%d", cs.Start)
 }
 
 var (

@@ -120,6 +120,11 @@ func Test_Selection_to_fragment(t *testing.T) {
 			},
 			out: "line=16,22",
 		},
+		{
+			desc: "zero-width char offset",
+			in:   CharSelection{Start: 167, End: 167},
+			out:  "char=167",
+		},
 	} {
 		t.Run(testCase.desc, func(t *testing.T) {
 			out := testCase.in.Fragment()
