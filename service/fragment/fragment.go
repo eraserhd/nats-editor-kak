@@ -55,31 +55,31 @@ func Parse(fragment string) (Selection, error) {
 		}, nil
 	}
 
-	var result LineAndColumnSelection
-	match := linePattern.FindStringSubmatch(fragment)
-	if match == nil {
-		return nil, CannotParse
-	}
-	var parts [4]int64
-	for i := 0; i < 4; i++ {
-		if match[i+1] == "" {
-			continue
+	if match := linePattern.FindStringSubmatch(fragment); match != nil {
+		var parts [4]int64
+		for i := 0; i < 4; i++ {
+			if match[i+1] == "" {
+				continue
+			}
+			var err error
+			parts[i], err = strconv.ParseInt(match[i+1], 10, 64)
+			if err != nil {
+				return nil, fmt.Errorf("parsing %q: %w", parts[i], err)
+			}
 		}
-		var err error
-		parts[i], err = strconv.ParseInt(match[i+1], 10, 64)
-		if err != nil {
-			return nil, fmt.Errorf("parsing %q: %w", parts[i], err)
+
+		var result LineAndColumnSelection
+		result.Start.Line = int(parts[0])
+		result.Start.Column = int(parts[1])
+		if parts[2] != 0 {
+			result.End.Line = int(parts[2])
+			result.End.Column = int(parts[3])
+		} else {
+			result.End = result.Start
 		}
+
+		return result, nil
 	}
 
-	result.Start.Line = int(parts[0])
-	result.Start.Column = int(parts[1])
-	if parts[2] != 0 {
-		result.End.Line = int(parts[2])
-		result.End.Column = int(parts[3])
-	} else {
-		result.End = result.Start
-	}
-
-	return result, nil
+	return nil, CannotParse
 }
