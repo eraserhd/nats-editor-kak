@@ -84,7 +84,7 @@ func (s *Service) OpenCommand(msg *nats.Msg) OpenCmd {
 				End:   Position{int(frag.Start.Line) + 1, 1},
 			}
 			if frag.Start.Line != frag.End.Line {
-				result.Script.Selection.End.Line = int(frag.End.Line) - 1
+				result.Script.Selection.End.Line = int(frag.End.Line)
 				result.Script.FixupKeys = "'x'"
 			}
 		}
