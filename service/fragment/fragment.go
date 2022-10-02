@@ -36,7 +36,7 @@ var (
 	noMatch     = errors.New("did not match")
 )
 
-func matchAndExtractOffset(pattern *regexp.Regexp, s string) ([]*Offset, error) {
+func matchAndParseInts(pattern *regexp.Regexp, s string) ([]*Offset, error) {
 	match := pattern.FindStringSubmatch(s)
 	if match == nil {
 		return nil, noMatch
@@ -58,7 +58,7 @@ func matchAndExtractOffset(pattern *regexp.Regexp, s string) ([]*Offset, error) 
 }
 
 func Parse(fragment string) (Selection, error) {
-	if parts, err := matchAndExtractOffset(charPattern, fragment); err == nil {
+	if parts, err := matchAndParseInts(charPattern, fragment); err == nil {
 		sel := CharSelection{Start: *parts[0], End: *parts[0]}
 		if parts[1] != nil {
 			sel.End = *parts[1]
@@ -66,7 +66,7 @@ func Parse(fragment string) (Selection, error) {
 		return sel, nil
 	}
 
-	if parts, err := matchAndExtractOffset(linePattern, fragment); err == nil {
+	if parts, err := matchAndParseInts(linePattern, fragment); err == nil {
 		sel := LineAndColumnSelection{
 			Start: LinePosition{Line: *parts[0]},
 			End:   LinePosition{Line: *parts[0]},
