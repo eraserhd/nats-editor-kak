@@ -89,3 +89,27 @@ func Test_line_fragments(t *testing.T) {
 		})
 	}
 }
+
+func Test_Selection_to_fragment(t *testing.T) {
+	for _, testCase := range []struct {
+		desc string
+		in   Selection
+		out  string
+	}{
+		{
+			desc: "single line selection",
+			in: LineAndColumnSelection{
+				Start: LinePosition{Line: 42},
+				End:   LinePosition{Line: 42},
+			},
+			out: "line=42",
+		},
+	} {
+		t.Run(testCase.desc, func(t *testing.T) {
+			out := testCase.in.Fragment()
+			if out != testCase.out {
+				t.Errorf("want out = %q, got %q", testCase.out, out)
+			}
+		})
+	}
+}

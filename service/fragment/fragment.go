@@ -2,6 +2,7 @@ package fragment
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 )
@@ -10,6 +11,7 @@ type Offset = int
 
 type Selection interface {
 	isSelection()
+	Fragment() string
 }
 
 type LinePosition struct {
@@ -22,11 +24,19 @@ type LineAndColumnSelection struct {
 
 func (_ LineAndColumnSelection) isSelection() {}
 
+func (lc LineAndColumnSelection) Fragment() string {
+	return fmt.Sprintf("line=%d", lc.Start.Line)
+}
+
 type CharSelection struct {
 	Start, End Offset
 }
 
 func (_ CharSelection) isSelection() {}
+
+func (cs CharSelection) Fragment() string {
+	return ""
+}
 
 var (
 	charPattern = regexp.MustCompile(`^char=(\d+)(?:,(\d+))?$`)
