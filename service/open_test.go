@@ -5,7 +5,6 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"github.com/plugbench/kakoune-pluggo/service/fragment")
 
@@ -24,8 +23,6 @@ func data(data string) openOption {
 }
 
 func open(t *testing.T, opts ...openOption) OpenCmd {
-	s, err := New()
-	require.NoError(t, err)
 	msg := &nats.Msg{
 		Subject: "editor.open",
 		Header:  map[string][]string{},
@@ -33,7 +30,7 @@ func open(t *testing.T, opts ...openOption) OpenCmd {
 	for _, opt := range opts {
 		opt(msg)
 	}
-	return s.OpenCommand(msg)
+	return OpenCommand(msg)
 }
 
 func Test_Defaults_session_to_kakoune(t *testing.T) {

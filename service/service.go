@@ -71,7 +71,7 @@ func (s *Service) Run() error {
 			action := msgAction{msg}
 			action.Execute()
 
-			open := s.OpenCommand(msg)
+			open := OpenCommand(msg)
 			if err := open.Run(msg); err != nil {
 				log.Print(err)
 				if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
