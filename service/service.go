@@ -43,28 +43,39 @@ func (s *Service) Run() error {
 	}
 	defer nc.Close()
 
-	ch := make(chan *nats.Msg, 32)
-	sub, err := nc.ChanSubscribe("cmd.show.url.file", ch)
+	fileCh := make(chan *nats.Msg, 32)
+	fileSub, err := nc.ChanSubscribe("cmd.show.url.file", fileCh)
 	if err != nil {
 		return err
 	}
-	defer sub.Drain()
+	defer fileSub.Drain()
+
+	clipCh := make(chan *nats.Msg, 32)
+	clipSub, err := nc.ChanSubscribe("event.changed.clipboard", clipCh)
+	if err != nil {
+		return err
+	}
+	defer clipSub.Drain()
 
 	for {
-		msg := <-ch
-		log.Printf("recieved %q", string(msg.Data))
+		select {
+		case msg := <-fileCh:
+			log.Printf("recieved %q", string(msg.Data))
 
-		open := s.OpenCommand(msg)
-		if err := open.Run(msg); err != nil {
-			log.Print(err)
-			if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
-				log.Printf("error responding: %v", err)
+			open := s.OpenCommand(msg)
+			if err := open.Run(msg); err != nil {
+				log.Print(err)
+				if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
+					log.Printf("error responding: %v", err)
+				}
+				continue
 			}
-			continue
-		}
-		if err := msg.Respond([]byte("ok")); err != nil {
-			log.Printf("error replying ok: %v", err)
-			continue
+			if err := msg.Respond([]byte("ok")); err != nil {
+				log.Printf("error replying ok: %v", err)
+				continue
+			}
+		case <-clipCh:
+        		log.Printf("clipboard changed")
 		}
 	}
 }
