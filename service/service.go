@@ -21,6 +21,19 @@ type msgAction struct {
 
 func (a *msgAction) Execute() {
 	log.Printf("recieved %q", string(a.msg.Data))
+
+	open := openCommand(a.msg)
+	if err := open.Run(a.msg); err != nil {
+		log.Print(err)
+		if err := a.msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
+			log.Printf("error responding: %v", err)
+		}
+		return
+	}
+	if err := a.msg.Respond([]byte("ok")); err != nil {
+		log.Printf("error replying ok: %v", err)
+		return
+	}
 }
 
 func (o OpenCommand) Run(msg *nats.Msg) error {
@@ -70,19 +83,6 @@ func (s *Service) Run() error {
 		case msg := <-fileCh:
 			action := msgAction{msg}
 			action.Execute()
-
-			open := openCommand(msg)
-			if err := open.Run(msg); err != nil {
-				log.Print(err)
-				if err := msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
-					log.Printf("error responding: %v", err)
-				}
-				continue
-			}
-			if err := msg.Respond([]byte("ok")); err != nil {
-				log.Printf("error replying ok: %v", err)
-				continue
-			}
 		case <-clipCh:
 			log.Printf("clipboard changed")
 		}
