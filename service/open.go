@@ -55,7 +55,7 @@ func quote(s string) string {
 	return result + "'"
 }
 
-func OpenCommand(msg *nats.Msg) OpenCmd {
+func openCommand(msg *nats.Msg) OpenCmd {
 	u, _ := url.Parse(string(msg.Data))
 	result := OpenCmd{
 		Session: "kakoune",

@@ -30,7 +30,7 @@ func open(t *testing.T, opts ...openOption) OpenCmd {
 	for _, opt := range opts {
 		opt(msg)
 	}
-	return OpenCommand(msg)
+	return openCommand(msg)
 }
 
 func Test_Defaults_session_to_kakoune(t *testing.T) {
