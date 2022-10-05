@@ -10,7 +10,7 @@ import (
 	"github.com/plugbench/kakoune-pluggo/service/fragment"
 )
 
-type Script struct {
+type OpenScript struct {
 	Client         string
 	QuotedFilename string
 	Selection      fragment.LineAndColumnSelection
@@ -33,7 +33,7 @@ var templ = template.Must(template.New("script").Parse(`
   }
 `))
 
-func (s Script) String() string {
+func (s OpenScript) String() string {
 	buf := &bytes.Buffer{}
 	_ = templ.Execute(buf, s)
 	return buf.String()
@@ -41,7 +41,7 @@ func (s Script) String() string {
 
 type OpenCmd struct {
 	Session string
-	Script  Script
+	Script  OpenScript
 }
 
 func quote(s string) string {
@@ -59,7 +59,7 @@ func openCommand(msg *nats.Msg) OpenCmd {
 	u, _ := url.Parse(string(msg.Data))
 	result := OpenCmd{
 		Session: "kakoune",
-		Script: Script{
+		Script: OpenScript{
 			Client:         "%opt{jumpclient}",
 			QuotedFilename: quote(u.Path),
 			Selection: fragment.LineAndColumnSelection{
