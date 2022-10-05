@@ -39,7 +39,7 @@ func (s OpenScript) String() string {
 	return buf.String()
 }
 
-type OpenCmd struct {
+type OpenCommand struct {
 	Session string
 	Script  OpenScript
 }
@@ -55,9 +55,9 @@ func quote(s string) string {
 	return result + "'"
 }
 
-func openCommand(msg *nats.Msg) OpenCmd {
+func openCommand(msg *nats.Msg) OpenCommand {
 	u, _ := url.Parse(string(msg.Data))
-	result := OpenCmd{
+	result := OpenCommand{
 		Session: "kakoune",
 		Script: OpenScript{
 			Client:         "%opt{jumpclient}",

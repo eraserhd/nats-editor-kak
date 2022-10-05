@@ -23,7 +23,7 @@ func (a *msgAction) Execute() {
 	log.Printf("recieved %q", string(a.msg.Data))
 }
 
-func (o OpenCmd) Run(msg *nats.Msg) error {
+func (o OpenCommand) Run(msg *nats.Msg) error {
 	cmd := exec.Command("kak", "-p", o.Session)
 	in, err := cmd.StdinPipe()
 	if err != nil {

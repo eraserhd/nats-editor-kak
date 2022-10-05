@@ -22,7 +22,7 @@ func data(data string) openOption {
 	}
 }
 
-func open(t *testing.T, opts ...openOption) OpenCmd {
+func open(t *testing.T, opts ...openOption) OpenCommand {
 	msg := &nats.Msg{
 		Subject: "editor.open",
 		Header:  map[string][]string{},
