@@ -15,6 +15,14 @@ func New() (*Service, error) {
 	return &Service{}, nil
 }
 
+type msgAction struct {
+	msg *nats.Msg
+}
+
+func (a *msgAction) Execute() {
+	log.Printf("recieved %q", string(a.msg.Data))
+}
+
 func (o OpenCmd) Run(msg *nats.Msg) error {
 	cmd := exec.Command("kak", "-p", o.Session)
 	in, err := cmd.StdinPipe()
@@ -60,7 +68,8 @@ func (s *Service) Run() error {
 	for {
 		select {
 		case msg := <-fileCh:
-			log.Printf("recieved %q", string(msg.Data))
+			action := msgAction{msg}
+			action.Execute()
 
 			open := s.OpenCommand(msg)
 			if err := open.Run(msg); err != nil {
@@ -75,7 +84,7 @@ func (s *Service) Run() error {
 				continue
 			}
 		case <-clipCh:
-        		log.Printf("clipboard changed")
+			log.Printf("clipboard changed")
 		}
 	}
 }
