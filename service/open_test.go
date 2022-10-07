@@ -37,7 +37,7 @@ func open(t *testing.T, opts ...openOption) OpenCommand {
 		publish: func(msg *nats.Msg) error {
 			return nil
 		},
-		runOpenCommand: func(cmd OpenCommand) error {
+		runKakouneScript: func(cmd OpenCommand) error {
 			cmdSent = cmd
 			return nil
 		},
