@@ -12,18 +12,20 @@ import (
 type openOption = func(msg *nats.Msg)
 
 func header(name, value string) openOption {
-	return func(msg *nats.Msg) {
-		msg.Header[name] = []string{value}
-	}
+	return func(msg *nats.Msg) { msg.Header[name] = []string{value} }
 }
 
 func data(data string) openOption {
-	return func(msg *nats.Msg) {
-		msg.Data = []byte(data)
-	}
+	return func(msg *nats.Msg) { msg.Data = []byte(data) }
 }
 
-func open(t *testing.T, opts ...openOption) OpenCommand {
+type runResult struct {
+	executedScripts   []OpenCommand
+	publishedMessages []*nats.Msg
+}
+
+func run(t *testing.T, opts ...openOption) runResult {
+	var result runResult
 	msg := &nats.Msg{
 		Subject: "editor.open",
 		Header:  map[string][]string{},
@@ -31,19 +33,27 @@ func open(t *testing.T, opts ...openOption) OpenCommand {
 	for _, opt := range opts {
 		opt(msg)
 	}
-	var cmdSent OpenCommand
 	act := msgAction{
 		msg: msg,
 		publish: func(msg *nats.Msg) error {
+			result.publishedMessages = append(result.publishedMessages, msg)
 			return nil
 		},
 		runKakouneScript: func(cmd OpenCommand) error {
-			cmdSent = cmd
+			result.executedScripts = append(result.executedScripts, cmd)
 			return nil
 		},
 	}
 	act.Execute()
-	return cmdSent
+	return result
+}
+
+func open(t *testing.T, opts ...openOption) OpenCommand {
+	result := run(t, opts...)
+	if len(result.executedScripts) != 1 {
+		t.Fatalf("expected 1 script to be executed, but got %d", len(result.executedScripts))
+	}
+	return result.executedScripts[0]
 }
 
 func Test_Defaults_session_to_kakoune(t *testing.T) {
