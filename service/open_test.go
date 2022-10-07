@@ -32,9 +32,23 @@ func (result runResult) OpenCommand() OpenCommand {
 	return result.executedScripts[0]
 }
 
+func (result runResult) Reply() *nats.Msg {
+	var replies []*nats.Msg
+	for _, msg := range result.publishedMessages {
+		if msg.Subject == "_INBOX.Reply" {
+			replies = append(replies, msg)
+		}
+	}
+	if len(replies) != 1 {
+		result.t.Fatalf("expected 1 reply, but got %d", len(replies))
+	}
+	return replies[0]
+}
+
 func run(t *testing.T, opts ...openOption) runResult {
 	result := runResult{t: t}
 	msg := &nats.Msg{
+		Reply:   "_INBOX.Reply",
 		Subject: "editor.open",
 		Header:  map[string][]string{},
 	}
@@ -119,5 +133,12 @@ func Test_Sets_editor_position(t *testing.T) {
 			End:   fragment.LineAndColumn{Line: 5, Column: 1},
 		})
 		assert.Equal(t, script.FixupKeys, "'<a-L>'")
+	})
+}
+
+func Test_Sends_replies(t *testing.T) {
+	t.Run("ok reply when everything works", func(t *testing.T) {
+		reply := run(t).Reply()
+		assert.Equal(t, reply.Data, []byte("ok"))
 	})
 }
