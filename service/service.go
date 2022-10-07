@@ -18,13 +18,14 @@ func New() (*Service, error) {
 type msgAction struct {
 	msg     *nats.Msg
 	publish func(msg *nats.Msg) error
+	run     func(cmd OpenCommand) error
 }
 
 func (a *msgAction) Execute() {
 	log.Printf("recieved %q", string(a.msg.Data))
 
-	open := openCommand(a.msg)
-	if err := open.Run(a.msg); err != nil {
+	cmd := openCommand(a.msg)
+	if err := a.run(cmd); err != nil {
 		log.Print(err)
 		reply := nats.NewMsg(a.msg.Reply)
 		reply.Data = []byte(fmt.Sprintf("ERROR: %s", err.Error()))
@@ -91,6 +92,9 @@ func (s *Service) Run() error {
 				msg: msg,
 				publish: func(msg *nats.Msg) error {
 					return nc.PublishMsg(msg)
+				},
+				run: func(cmd OpenCommand) error {
+					return cmd.Run(msg)
 				},
 			}
 			action.Execute()
