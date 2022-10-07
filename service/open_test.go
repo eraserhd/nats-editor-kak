@@ -20,12 +20,20 @@ func data(data string) openOption {
 }
 
 type runResult struct {
+	t                 *testing.T
 	executedScripts   []OpenCommand
 	publishedMessages []*nats.Msg
 }
 
+func (result runResult) OpenCommand() OpenCommand {
+	if len(result.executedScripts) != 1 {
+		result.t.Fatalf("expected 1 script to be executed, but got %d", len(result.executedScripts))
+	}
+	return result.executedScripts[0]
+}
+
 func run(t *testing.T, opts ...openOption) runResult {
-	var result runResult
+	result := runResult{t: t}
 	msg := &nats.Msg{
 		Subject: "editor.open",
 		Header:  map[string][]string{},
@@ -48,48 +56,40 @@ func run(t *testing.T, opts ...openOption) runResult {
 	return result
 }
 
-func open(t *testing.T, opts ...openOption) OpenCommand {
-	result := run(t, opts...)
-	if len(result.executedScripts) != 1 {
-		t.Fatalf("expected 1 script to be executed, but got %d", len(result.executedScripts))
-	}
-	return result.executedScripts[0]
-}
-
 func Test_Defaults_session_to_kakoune(t *testing.T) {
-	sess := open(t).Session
+	sess := run(t).OpenCommand().Session
 	assert.Equal(t, "kakoune", sess)
 }
 
 func Test_Open_uses_editor_session_when_sent(t *testing.T) {
-	sess := open(t, header("Session", "foo")).Session
+	sess := run(t, header("Session", "foo")).OpenCommand().Session
 	assert.Equal(t, "foo", sess)
 }
 
 func Test_Defaults_client_to_jumpclient_option(t *testing.T) {
-	client := open(t).Script.Client
+	client := run(t).OpenCommand().Script.Client
 	assert.Equal(t, "%opt{jumpclient}", client)
 }
 
 func Test_Allows_override_of_client_and_quotes_it(t *testing.T) {
-	client := open(t, header("Window", "slime")).Script.Client
+	client := run(t, header("Window", "slime")).OpenCommand().Script.Client
 	assert.Equal(t, client, "'slime'")
 }
 
 func Test_Opens_file_URL(t *testing.T) {
 	t.Run("without apostrophes", func(t *testing.T) {
-		filename := open(t, data("file:///foo/bar.txt")).Script.QuotedFilename
+		filename := run(t, data("file:///foo/bar.txt")).OpenCommand().Script.QuotedFilename
 		assert.Equal(t, filename, "'/foo/bar.txt'")
 	})
 	t.Run("quotes apostrophes in the filename", func(t *testing.T) {
-		filename := open(t, data("file:///foo/b'ar.txt")).Script.QuotedFilename
+		filename := run(t, data("file:///foo/b'ar.txt")).OpenCommand().Script.QuotedFilename
 		assert.Contains(t, filename, "'/foo/b''ar.txt'")
 	})
 }
 
 func Test_Sets_editor_position(t *testing.T) {
 	t.Run("defaults to line 1, column 1", func(t *testing.T) {
-		script := open(t).Script
+		script := run(t).OpenCommand().Script
 		assert.Equal(t, script.Selection, fragment.LineAndColumnSelection{
 			Start: fragment.LineAndColumn{Line: 1, Column: 1},
 			End:   fragment.LineAndColumn{Line: 1, Column: 1},
@@ -97,7 +97,7 @@ func Test_Sets_editor_position(t *testing.T) {
 		assert.Equal(t, script.FixupKeys, "''")
 	})
 	t.Run("sets line number when given in URL", func(t *testing.T) {
-		script := open(t, data("file:///foo/bar.txt#line=42")).Script
+		script := run(t, data("file:///foo/bar.txt#line=42")).OpenCommand().Script
 		assert.Equal(t, script.Selection, fragment.LineAndColumnSelection{
 			Start: fragment.LineAndColumn{Line: 43, Column: 1},
 			End:   fragment.LineAndColumn{Line: 43, Column: 1},
@@ -105,7 +105,7 @@ func Test_Sets_editor_position(t *testing.T) {
 		assert.Equal(t, script.FixupKeys, "''")
 	})
 	t.Run("sets line and column number when given in URL", func(t *testing.T) {
-		script := open(t, data("file:///foo/bar.txt#line=42.3")).Script
+		script := run(t, data("file:///foo/bar.txt#line=42.3")).OpenCommand().Script
 		assert.Equal(t, script.Selection, fragment.LineAndColumnSelection{
 			Start: fragment.LineAndColumn{Line: 43, Column: 4},
 			End:   fragment.LineAndColumn{Line: 43, Column: 4},
@@ -113,7 +113,7 @@ func Test_Sets_editor_position(t *testing.T) {
 		assert.Equal(t, script.FixupKeys, "''")
 	})
 	t.Run("set line range when given in URL", func(t *testing.T) {
-		script := open(t, data("file:///foo/bar.txt#line=2,5")).Script
+		script := run(t, data("file:///foo/bar.txt#line=2,5")).OpenCommand().Script
 		assert.Equal(t, script.Selection, fragment.LineAndColumnSelection{
 			Start: fragment.LineAndColumn{Line: 3, Column: 1},
 			End:   fragment.LineAndColumn{Line: 5, Column: 1},
