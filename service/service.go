@@ -16,7 +16,8 @@ func New() (*Service, error) {
 }
 
 type msgAction struct {
-	msg *nats.Msg
+	msg     *nats.Msg
+	publish func(msg *nats.Msg) error
 }
 
 func (a *msgAction) Execute() {
@@ -25,12 +26,17 @@ func (a *msgAction) Execute() {
 	open := openCommand(a.msg)
 	if err := open.Run(a.msg); err != nil {
 		log.Print(err)
-		if err := a.msg.Respond([]byte(fmt.Sprintf("ERROR: %s", err.Error()))); err != nil {
+		reply := nats.NewMsg(a.msg.Reply)
+		reply.Data = []byte(fmt.Sprintf("ERROR: %s", err.Error()))
+		if err := a.publish(reply); err != nil {
 			log.Printf("error responding: %v", err)
 		}
 		return
 	}
-	if err := a.msg.Respond([]byte("ok")); err != nil {
+
+	reply := nats.NewMsg(a.msg.Reply)
+	reply.Data = []byte("ok")
+	if err := a.publish(reply); err != nil {
 		log.Printf("error replying ok: %v", err)
 		return
 	}
@@ -81,7 +87,12 @@ func (s *Service) Run() error {
 	for {
 		select {
 		case msg := <-fileCh:
-			action := msgAction{msg}
+			action := msgAction{
+				msg: msg,
+				publish: func(msg *nats.Msg) error {
+					return nc.PublishMsg(msg)
+				},
+			}
 			action.Execute()
 		case <-clipCh:
 			log.Printf("clipboard changed")
