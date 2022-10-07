@@ -67,7 +67,7 @@ func run(t *testing.T, opts ...runOption) runResult {
 	for _, opt := range opts {
 		opt(&result)
 	}
-	act := msgAction{
+	act := openAction{
 		msg: result.msg,
 		publish: func(msg *nats.Msg) error {
 			result.publishedMessages = append(result.publishedMessages, msg)
