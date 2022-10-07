@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/nats-io/nats.go"
@@ -9,18 +10,11 @@ import (
 	"github.com/plugbench/kakoune-pluggo/service/fragment"
 )
 
-type openOption = func(msg *nats.Msg)
-
-func header(name, value string) openOption {
-	return func(msg *nats.Msg) { msg.Header[name] = []string{value} }
-}
-
-func data(data string) openOption {
-	return func(msg *nats.Msg) { msg.Data = []byte(data) }
-}
-
 type runResult struct {
-	t                 *testing.T
+	t                    *testing.T
+	msg                  *nats.Msg
+	scriptExecutionError error
+
 	executedScripts   []OpenCommand
 	publishedMessages []*nats.Msg
 }
@@ -45,23 +39,44 @@ func (result runResult) Reply() *nats.Msg {
 	return replies[0]
 }
 
-func run(t *testing.T, opts ...openOption) runResult {
-	result := runResult{t: t}
-	msg := &nats.Msg{
-		Reply:   "_INBOX.Reply",
-		Subject: "editor.open",
-		Header:  map[string][]string{},
+type runOption = func(result *runResult)
+
+func header(name, value string) runOption {
+	return func(result *runResult) { result.msg.Header[name] = []string{value} }
+}
+
+func data(data string) runOption {
+	return func(result *runResult) { result.msg.Data = []byte(data) }
+}
+
+func scriptExecutionError(text string) runOption {
+	return func(result *runResult) {
+		result.scriptExecutionError = errors.New(text)
+	}
+}
+
+func run(t *testing.T, opts ...runOption) runResult {
+	result := runResult{
+		t: t,
+		msg: &nats.Msg{
+			Reply:   "_INBOX.Reply",
+			Subject: "editor.open",
+			Header:  map[string][]string{},
+		},
 	}
 	for _, opt := range opts {
-		opt(msg)
+		opt(&result)
 	}
 	act := msgAction{
-		msg: msg,
+		msg: result.msg,
 		publish: func(msg *nats.Msg) error {
 			result.publishedMessages = append(result.publishedMessages, msg)
 			return nil
 		},
 		runKakouneScript: func(cmd OpenCommand) error {
+			if result.scriptExecutionError != nil {
+				return result.scriptExecutionError
+			}
 			result.executedScripts = append(result.executedScripts, cmd)
 			return nil
 		},
@@ -139,6 +154,10 @@ func Test_Sets_editor_position(t *testing.T) {
 func Test_Sends_replies(t *testing.T) {
 	t.Run("ok reply when everything works", func(t *testing.T) {
 		reply := run(t).Reply()
-		assert.Equal(t, reply.Data, []byte("ok"))
+		assert.Equal(t, string(reply.Data), "ok")
+	})
+	t.Run("ERROR reply when the editor command fails", func(t *testing.T) {
+		reply := run(t, scriptExecutionError("command failed")).Reply()
+		assert.Equal(t, string(reply.Data), "ERROR: command failed")
 	})
 }
