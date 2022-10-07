@@ -6,7 +6,8 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/plugbench/kakoune-pluggo/service/fragment")
+	"github.com/plugbench/kakoune-pluggo/service/fragment"
+)
 
 type openOption = func(msg *nats.Msg)
 
@@ -30,7 +31,19 @@ func open(t *testing.T, opts ...openOption) OpenCommand {
 	for _, opt := range opts {
 		opt(msg)
 	}
-	return openCommand(msg)
+	var cmdSent OpenCommand
+	act := msgAction{
+		msg: msg,
+		publish: func(msg *nats.Msg) error {
+			return nil
+		},
+		run: func(cmd OpenCommand) error {
+			cmdSent = cmd
+			return nil
+		},
+	}
+	act.Execute()
+	return cmdSent
 }
 
 func Test_Defaults_session_to_kakoune(t *testing.T) {
