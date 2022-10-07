@@ -12,34 +12,6 @@ import (
 	"github.com/plugbench/kakoune-pluggo/service/fragment"
 )
 
-type openAction struct {
-	msg              *nats.Msg
-	publish          func(msg *nats.Msg) error
-	runKakouneScript func(cmd OpenCommand) error
-}
-
-func (a *openAction) Execute() {
-	log.Printf("recieved %q", string(a.msg.Data))
-
-	cmd := openCommand(a.msg)
-	if err := a.runKakouneScript(cmd); err != nil {
-		log.Print(err)
-		reply := nats.NewMsg(a.msg.Reply)
-		reply.Data = []byte(fmt.Sprintf("ERROR: %s", err.Error()))
-		if err := a.publish(reply); err != nil {
-			log.Printf("error responding: %v", err)
-		}
-		return
-	}
-
-	reply := nats.NewMsg(a.msg.Reply)
-	reply.Data = []byte("ok")
-	if err := a.publish(reply); err != nil {
-		log.Printf("error replying ok: %v", err)
-		return
-	}
-}
-
 type OpenScript struct {
 	Client         string
 	QuotedFilename string
@@ -74,19 +46,14 @@ type OpenCommand struct {
 	Script  OpenScript
 }
 
-func quote(s string) string {
-	result := "'"
-	for _, ch := range s {
-		if ch == '\'' {
-			result += "'"
-		}
-		result += string(ch)
-	}
-	return result + "'"
+type openAction struct {
+	msg              *nats.Msg
+	publish          func(msg *nats.Msg) error
+	runKakouneScript func(cmd OpenCommand) error
 }
 
-func openCommand(msg *nats.Msg) OpenCommand {
-	u, _ := url.Parse(string(msg.Data))
+func (a *openAction) makeOpenScript() OpenCommand {
+	u, _ := url.Parse(string(a.msg.Data))
 	result := OpenCommand{
 		Session: "kakoune",
 		Script: OpenScript{
@@ -119,11 +86,44 @@ func openCommand(msg *nats.Msg) OpenCommand {
 			result.Script.Selection = frag
 		}
 	}
-	if s := msg.Header.Get("Session"); s != "" {
+	if s := a.msg.Header.Get("Session"); s != "" {
 		result.Session = s
 	}
-	if w := msg.Header.Get("Window"); w != "" {
+	if w := a.msg.Header.Get("Window"); w != "" {
 		result.Script.Client = quote(w)
 	}
 	return result
+}
+
+func (a *openAction) Execute() {
+	log.Printf("recieved %q", string(a.msg.Data))
+
+	cmd := a.makeOpenScript()
+	if err := a.runKakouneScript(cmd); err != nil {
+		log.Print(err)
+		reply := nats.NewMsg(a.msg.Reply)
+		reply.Data = []byte(fmt.Sprintf("ERROR: %s", err.Error()))
+		if err := a.publish(reply); err != nil {
+			log.Printf("error responding: %v", err)
+		}
+		return
+	}
+
+	reply := nats.NewMsg(a.msg.Reply)
+	reply.Data = []byte("ok")
+	if err := a.publish(reply); err != nil {
+		log.Printf("error replying ok: %v", err)
+		return
+	}
+}
+
+func quote(s string) string {
+	result := "'"
+	for _, ch := range s {
+		if ch == '\'' {
+			result += "'"
+		}
+		result += string(ch)
+	}
+	return result + "'"
 }
