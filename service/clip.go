@@ -20,7 +20,7 @@ var setDquoteTempl = template.Must(template.New("script").Parse(`
 
 func (s *SetDquoteRegister) String() string {
 	buf := &bytes.Buffer{}
-	_ = openFileTempl.Execute(buf, s)
+	_ = setDquoteTempl.Execute(buf, s)
 	return buf.String()
 }
 
