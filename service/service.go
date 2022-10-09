@@ -16,7 +16,7 @@ func New() (*Service, error) {
 	return &Service{}, nil
 }
 
-func runKakouneScript(o kakoune.Command) error {
+func Run(o kakoune.Command) error {
 	cmd := exec.Command("kak", "-p", o.Session)
 	in, err := cmd.StdinPipe()
 	if err != nil {
@@ -66,13 +66,13 @@ func (s *Service) Run() error {
 				publish: func(msg *nats.Msg) error {
 					return nc.PublishMsg(msg)
 				},
-				runKakouneScript: runKakouneScript,
+				runKakouneScript: Run,
 			}
 			action.Execute()
 		case msg := <-clipCh:
 			action := clipChangedAction{
 				msg: msg,
-				runKakouneScript: runKakouneScript,
+				runKakouneScript: Run,
 			}
 			action.Execute()
 		}
