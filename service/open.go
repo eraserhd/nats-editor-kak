@@ -35,7 +35,7 @@ var templ = template.Must(template.New("script").Parse(`
   }
 `))
 
-func (s OpenScript) String() string {
+func (s *OpenScript) String() string {
 	buf := &bytes.Buffer{}
 	_ = templ.Execute(buf, s)
 	return buf.String()
@@ -43,7 +43,7 @@ func (s OpenScript) String() string {
 
 type OpenCommand struct {
 	Session string
-	Script  OpenScript
+	Script  fmt.Stringer
 }
 
 type openAction struct {
@@ -54,17 +54,18 @@ type openAction struct {
 
 func (a *openAction) makeOpenScript() OpenCommand {
 	u, _ := url.Parse(string(a.msg.Data))
+        openScript := &OpenScript{
+		Client:         "%opt{jumpclient}",
+		QuotedFilename: quote(u.Path),
+		Selection: fragment.LineAndColumnSelection{
+			Start: fragment.LineAndColumn{Line: 1, Column: 1},
+			End:   fragment.LineAndColumn{Line: 1, Column: 1},
+		},
+		FixupKeys: "''",
+	}
 	result := OpenCommand{
 		Session: "kakoune",
-		Script: OpenScript{
-			Client:         "%opt{jumpclient}",
-			QuotedFilename: quote(u.Path),
-			Selection: fragment.LineAndColumnSelection{
-				Start: fragment.LineAndColumn{Line: 1, Column: 1},
-				End:   fragment.LineAndColumn{Line: 1, Column: 1},
-			},
-			FixupKeys: "''",
-		},
+		Script: openScript,
 	}
 	if frag, err := fragment.ParseRFC5147FragmentIdentifier(u.Fragment); err == nil {
 		if frag, ok := frag.(fragment.LineAndColumnSelection); ok {
@@ -81,16 +82,16 @@ func (a *openAction) makeOpenScript() OpenCommand {
 				// to do so, select up to the previous line and extend to EOL with <a-L>
 				frag.End.Line--
 				frag.End.Column = 1
-				result.Script.FixupKeys = "'<a-L>'"
+				openScript.FixupKeys = "'<a-L>'"
 			}
-			result.Script.Selection = frag
+			openScript.Selection = frag
 		}
 	}
 	if s := a.msg.Header.Get("Session"); s != "" {
 		result.Session = s
 	}
 	if w := a.msg.Header.Get("Window"); w != "" {
-		result.Script.Client = quote(w)
+		openScript.Client = quote(w)
 	}
 	return result
 }

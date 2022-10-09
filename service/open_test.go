@@ -26,6 +26,15 @@ func (result runResult) OpenCommand() OpenCommand {
 	return result.executedScripts[0]
 }
 
+func (result runResult) OpenScript() OpenScript {
+	sc := result.OpenCommand().Script
+	if sc, ok := sc.(*OpenScript); ok {
+		return *sc
+	}
+	result.t.Fatal("script was of the wrong type")
+	return OpenScript{}
+}
+
 func (result runResult) Reply() *nats.Msg {
 	var replies []*nats.Msg
 	for _, msg := range result.publishedMessages {
@@ -96,29 +105,29 @@ func Test_Open_uses_editor_session_when_sent(t *testing.T) {
 }
 
 func Test_Defaults_client_to_jumpclient_option(t *testing.T) {
-	client := run(t).OpenCommand().Script.Client
+	client := run(t).OpenScript().Client
 	assert.Equal(t, "%opt{jumpclient}", client)
 }
 
 func Test_Allows_override_of_client_and_quotes_it(t *testing.T) {
-	client := run(t, header("Window", "slime")).OpenCommand().Script.Client
+	client := run(t, header("Window", "slime")).OpenScript().Client
 	assert.Equal(t, client, "'slime'")
 }
 
 func Test_Opens_file_URL(t *testing.T) {
 	t.Run("without apostrophes", func(t *testing.T) {
-		filename := run(t, data("file:///foo/bar.txt")).OpenCommand().Script.QuotedFilename
+		filename := run(t, data("file:///foo/bar.txt")).OpenScript().QuotedFilename
 		assert.Equal(t, filename, "'/foo/bar.txt'")
 	})
 	t.Run("quotes apostrophes in the filename", func(t *testing.T) {
-		filename := run(t, data("file:///foo/b'ar.txt")).OpenCommand().Script.QuotedFilename
+		filename := run(t, data("file:///foo/b'ar.txt")).OpenScript().QuotedFilename
 		assert.Contains(t, filename, "'/foo/b''ar.txt'")
 	})
 }
 
 func Test_Sets_editor_position(t *testing.T) {
 	t.Run("defaults to line 1, column 1", func(t *testing.T) {
-		script := run(t).OpenCommand().Script
+		script := run(t).OpenScript()
 		assert.Equal(t, script.Selection, fragment.LineAndColumnSelection{
 			Start: fragment.LineAndColumn{Line: 1, Column: 1},
 			End:   fragment.LineAndColumn{Line: 1, Column: 1},
@@ -126,7 +135,7 @@ func Test_Sets_editor_position(t *testing.T) {
 		assert.Equal(t, script.FixupKeys, "''")
 	})
 	t.Run("sets line number when given in URL", func(t *testing.T) {
-		script := run(t, data("file:///foo/bar.txt#line=42")).OpenCommand().Script
+		script := run(t, data("file:///foo/bar.txt#line=42")).OpenScript()
 		assert.Equal(t, script.Selection, fragment.LineAndColumnSelection{
 			Start: fragment.LineAndColumn{Line: 43, Column: 1},
 			End:   fragment.LineAndColumn{Line: 43, Column: 1},
@@ -134,7 +143,7 @@ func Test_Sets_editor_position(t *testing.T) {
 		assert.Equal(t, script.FixupKeys, "''")
 	})
 	t.Run("sets line and column number when given in URL", func(t *testing.T) {
-		script := run(t, data("file:///foo/bar.txt#line=42.3")).OpenCommand().Script
+		script := run(t, data("file:///foo/bar.txt#line=42.3")).OpenScript()
 		assert.Equal(t, script.Selection, fragment.LineAndColumnSelection{
 			Start: fragment.LineAndColumn{Line: 43, Column: 4},
 			End:   fragment.LineAndColumn{Line: 43, Column: 4},
@@ -142,7 +151,7 @@ func Test_Sets_editor_position(t *testing.T) {
 		assert.Equal(t, script.FixupKeys, "''")
 	})
 	t.Run("set line range when given in URL", func(t *testing.T) {
-		script := run(t, data("file:///foo/bar.txt#line=2,5")).OpenCommand().Script
+		script := run(t, data("file:///foo/bar.txt#line=2,5")).OpenScript()
 		assert.Equal(t, script.Selection, fragment.LineAndColumnSelection{
 			Start: fragment.LineAndColumn{Line: 3, Column: 1},
 			End:   fragment.LineAndColumn{Line: 5, Column: 1},
