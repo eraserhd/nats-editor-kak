@@ -21,7 +21,7 @@ var setDquoteTempl = template.Must(template.New("script").Parse(`
         exit 0
       fi
       printf "set-register dquote '"
-      printf %s "$kak_main_reg_dquote" |sed -e "s/'/''/g"
+      printf %s "$1" |sed -e "s/'/''/g"
       printf "'\n"
     }
   }
