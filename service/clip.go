@@ -9,6 +9,7 @@ import (
 )
 
 type SetDquoteRegister struct {
+	Value string
 }
 
 func (s *SetDquoteRegister) String() string {
@@ -23,6 +24,8 @@ type clipChangedAction struct {
 func (a *clipChangedAction) Execute() {
 	log.Printf("recieved clipboard changed event")
 	a.runKakouneScript(kakoune.Command{
-		Script: &SetDquoteRegister{},
+		Script: &SetDquoteRegister{
+			Value: kakoune.Quote(string(a.msg.Data)),
+		},
 	})
 }
