@@ -27,13 +27,13 @@ func (result runResult) OpenCommand() kakoune.Command {
 	return result.executedScripts[0]
 }
 
-func (result runResult) OpenScript() OpenScript {
+func (result runResult) OpenScript() OpenFile {
 	sc := result.OpenCommand().Script
-	if sc, ok := sc.(*OpenScript); ok {
+	if sc, ok := sc.(*OpenFile); ok {
 		return *sc
 	}
 	result.t.Fatal("script was of the wrong type")
-	return OpenScript{}
+	return OpenFile{}
 }
 
 func (result runResult) Reply() *nats.Msg {

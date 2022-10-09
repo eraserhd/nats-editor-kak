@@ -13,14 +13,14 @@ import (
 	"github.com/plugbench/kakoune-pluggo/kakoune"
 )
 
-type OpenScript struct {
+type OpenFile struct {
 	Client         string
 	QuotedFilename string
 	Selection      fragment.LineAndColumnSelection
 	FixupKeys      string
 }
 
-var templ = template.Must(template.New("script").Parse(`
+var openFileTempl = template.Must(template.New("script").Parse(`
   evaluate-commands -try-client {{.Client}} %{
     try %{
       edit -existing {{.QuotedFilename}}
@@ -36,9 +36,9 @@ var templ = template.Must(template.New("script").Parse(`
   }
 `))
 
-func (s *OpenScript) String() string {
+func (s *OpenFile) String() string {
 	buf := &bytes.Buffer{}
-	_ = templ.Execute(buf, s)
+	_ = openFileTempl.Execute(buf, s)
 	return buf.String()
 }
 
@@ -50,7 +50,7 @@ type openAction struct {
 
 func (a *openAction) makeOpenScript() kakoune.Command {
 	u, _ := url.Parse(string(a.msg.Data))
-        openScript := &OpenScript{
+        openScript := &OpenFile{
 		Client:         "%opt{jumpclient}",
 		QuotedFilename: kakoune.Quote(u.Path),
 		Selection: fragment.LineAndColumnSelection{
