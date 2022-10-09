@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"log"
 	"os/exec"
 
 	"github.com/nats-io/nats.go"
@@ -68,8 +67,14 @@ func (s *Service) Run() error {
 				runKakouneScript: runKakouneScript,
 			}
 			action.Execute()
-		case <-clipCh:
-			log.Printf("clipboard changed")
+		case msg := <-clipCh:
+			action := clipChangedAction{
+				msg: msg,
+				publish: func(msg *nats.Msg) error {
+					return nc.PublishMsg(msg)
+				},
+			}
+			action.Execute()
 		}
 	}
 }
