@@ -7,10 +7,10 @@ import (
 )
 
 func Test_Updates_dquote_register_when_clip_changed(t *testing.T) {
-	var receivedCmd *ChangeDquoteRegister
+	var receivedCmd *KakouneCommand
 	act := clipChangedAction{
 		msg: nats.NewMsg("event.changed.clipboard"),
-		runKakouneScript: func(cmd ChangeDquoteRegister) {
+		runKakouneScript: func(cmd KakouneCommand) {
 			receivedCmd = &cmd
 		},
 	}

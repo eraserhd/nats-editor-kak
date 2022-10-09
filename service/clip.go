@@ -6,15 +6,12 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-type ChangeDquoteRegister struct {
-}
-
 type clipChangedAction struct {
 	msg              *nats.Msg
-	runKakouneScript func(cmd ChangeDquoteRegister)
+	runKakouneScript func(cmd KakouneCommand)
 }
 
 func (a *clipChangedAction) Execute() {
 	log.Printf("recieved clipboard changed event")
-	a.runKakouneScript(ChangeDquoteRegister{})
+	a.runKakouneScript(KakouneCommand{})
 }
