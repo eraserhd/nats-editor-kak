@@ -1,7 +1,9 @@
 package service
 
 import (
+	"bytes"
 	"log"
+	"text/template"
 
 	"github.com/nats-io/nats.go"
 
@@ -12,8 +14,14 @@ type SetDquoteRegister struct {
 	Value string
 }
 
+var setDquoteTempl = template.Must(template.New("script").Parse(`
+  set-register dquote {{.Value}}
+`))
+
 func (s *SetDquoteRegister) String() string {
-	return ""
+	buf := &bytes.Buffer{}
+	_ = templ.Execute(buf, s)
+	return buf.String()
 }
 
 type clipChangedAction struct {
