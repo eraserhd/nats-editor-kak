@@ -5,6 +5,8 @@ import (
 	"os/exec"
 
 	"github.com/nats-io/nats.go"
+
+	"github.com/plugbench/kakoune-pluggo/kakoune"
 )
 
 type Service struct {
@@ -14,7 +16,7 @@ func New() (*Service, error) {
 	return &Service{}, nil
 }
 
-func runKakouneScript(o KakouneCommand) error {
+func runKakouneScript(o kakoune.Command) error {
 	cmd := exec.Command("kak", "-p", o.Session)
 	in, err := cmd.StdinPipe()
 	if err != nil {

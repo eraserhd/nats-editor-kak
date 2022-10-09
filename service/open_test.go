@@ -7,6 +7,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/plugbench/kakoune-pluggo/kakoune"
 	"github.com/plugbench/kakoune-pluggo/service/fragment"
 )
 
@@ -15,11 +16,11 @@ type runResult struct {
 	msg                  *nats.Msg
 	scriptExecutionError error
 
-	executedScripts   []KakouneCommand
+	executedScripts   []kakoune.Command
 	publishedMessages []*nats.Msg
 }
 
-func (result runResult) OpenCommand() KakouneCommand {
+func (result runResult) OpenCommand() kakoune.Command {
 	if len(result.executedScripts) != 1 {
 		result.t.Fatalf("expected 1 script to be executed, but got %d", len(result.executedScripts))
 	}
@@ -82,7 +83,7 @@ func run(t *testing.T, opts ...runOption) runResult {
 			result.publishedMessages = append(result.publishedMessages, msg)
 			return nil
 		},
-		runKakouneScript: func(cmd KakouneCommand) error {
+		runKakouneScript: func(cmd kakoune.Command) error {
 			if result.scriptExecutionError != nil {
 				return result.scriptExecutionError
 			}

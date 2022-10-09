@@ -10,6 +10,7 @@ import (
 	"github.com/nats-io/nats.go"
 
 	"github.com/plugbench/kakoune-pluggo/service/fragment"
+	"github.com/plugbench/kakoune-pluggo/kakoune"
 )
 
 type OpenScript struct {
@@ -41,18 +42,13 @@ func (s *OpenScript) String() string {
 	return buf.String()
 }
 
-type KakouneCommand struct {
-	Session string
-	Script  fmt.Stringer
-}
-
 type openAction struct {
 	msg              *nats.Msg
 	publish          func(msg *nats.Msg) error
-	runKakouneScript func(cmd KakouneCommand) error
+	runKakouneScript func(cmd kakoune.Command) error
 }
 
-func (a *openAction) makeOpenScript() KakouneCommand {
+func (a *openAction) makeOpenScript() kakoune.Command {
 	u, _ := url.Parse(string(a.msg.Data))
         openScript := &OpenScript{
 		Client:         "%opt{jumpclient}",
@@ -63,7 +59,7 @@ func (a *openAction) makeOpenScript() KakouneCommand {
 		},
 		FixupKeys: "''",
 	}
-	result := KakouneCommand{
+	result := kakoune.Command{
 		Session: "kakoune",
 		Script: openScript,
 	}

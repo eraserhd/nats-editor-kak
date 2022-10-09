@@ -4,13 +4,14 @@ import (
 	"testing"
 
 	"github.com/nats-io/nats.go"
+	"github.com/plugbench/kakoune-pluggo/kakoune"
 )
 
 func Test_Updates_dquote_register_when_clip_changed(t *testing.T) {
-	var receivedCmd *KakouneCommand
+	var receivedCmd *kakoune.Command
 	act := clipChangedAction{
 		msg: nats.NewMsg("event.changed.clipboard"),
-		runKakouneScript: func(cmd KakouneCommand) error {
+		runKakouneScript: func(cmd kakoune.Command) error {
 			receivedCmd = &cmd
 			return nil
 		},
