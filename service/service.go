@@ -70,9 +70,7 @@ func (s *Service) Run() error {
 		case msg := <-clipCh:
 			action := clipChangedAction{
 				msg: msg,
-				publish: func(msg *nats.Msg) error {
-					return nc.PublishMsg(msg)
-				},
+				//FIXME:
 			}
 			action.Execute()
 		}
