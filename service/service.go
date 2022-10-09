@@ -14,7 +14,7 @@ func New() (*Service, error) {
 	return &Service{}, nil
 }
 
-func runKakouneScript(o OpenCommand) error {
+func runKakouneScript(o KakouneCommand) error {
 	cmd := exec.Command("kak", "-p", o.Session)
 	in, err := cmd.StdinPipe()
 	if err != nil {

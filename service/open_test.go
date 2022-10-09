@@ -15,11 +15,11 @@ type runResult struct {
 	msg                  *nats.Msg
 	scriptExecutionError error
 
-	executedScripts   []OpenCommand
+	executedScripts   []KakouneCommand
 	publishedMessages []*nats.Msg
 }
 
-func (result runResult) OpenCommand() OpenCommand {
+func (result runResult) OpenCommand() KakouneCommand {
 	if len(result.executedScripts) != 1 {
 		result.t.Fatalf("expected 1 script to be executed, but got %d", len(result.executedScripts))
 	}
@@ -82,7 +82,7 @@ func run(t *testing.T, opts ...runOption) runResult {
 			result.publishedMessages = append(result.publishedMessages, msg)
 			return nil
 		},
-		runKakouneScript: func(cmd OpenCommand) error {
+		runKakouneScript: func(cmd KakouneCommand) error {
 			if result.scriptExecutionError != nil {
 				return result.scriptExecutionError
 			}

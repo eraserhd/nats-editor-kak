@@ -41,7 +41,7 @@ func (s *OpenScript) String() string {
 	return buf.String()
 }
 
-type OpenCommand struct {
+type KakouneCommand struct {
 	Session string
 	Script  fmt.Stringer
 }
@@ -49,10 +49,10 @@ type OpenCommand struct {
 type openAction struct {
 	msg              *nats.Msg
 	publish          func(msg *nats.Msg) error
-	runKakouneScript func(cmd OpenCommand) error
+	runKakouneScript func(cmd KakouneCommand) error
 }
 
-func (a *openAction) makeOpenScript() OpenCommand {
+func (a *openAction) makeOpenScript() KakouneCommand {
 	u, _ := url.Parse(string(a.msg.Data))
         openScript := &OpenScript{
 		Client:         "%opt{jumpclient}",
@@ -63,7 +63,7 @@ func (a *openAction) makeOpenScript() OpenCommand {
 		},
 		FixupKeys: "''",
 	}
-	result := OpenCommand{
+	result := KakouneCommand{
 		Session: "kakoune",
 		Script: openScript,
 	}
