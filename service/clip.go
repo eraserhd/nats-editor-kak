@@ -24,6 +24,7 @@ type clipChangedAction struct {
 func (a *clipChangedAction) Execute() {
 	log.Printf("recieved clipboard changed event")
 	a.runKakouneScript(kakoune.Command{
+		Session: "kakoune",
 		Script: &SetDquoteRegister{
 			Value: kakoune.Quote(string(a.msg.Data)),
 		},
