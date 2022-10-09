@@ -1,9 +1,6 @@
 package service
 
 import (
-	"fmt"
-	"os/exec"
-
 	"github.com/nats-io/nats.go"
 
 	"github.com/plugbench/kakoune-pluggo/kakoune"
@@ -14,27 +11,6 @@ type Service struct {
 
 func New() (*Service, error) {
 	return &Service{}, nil
-}
-
-func Run(o kakoune.Command) error {
-	cmd := exec.Command("kak", "-p", o.Session)
-	in, err := cmd.StdinPipe()
-	if err != nil {
-		return fmt.Errorf("error creating pipe: %w", err)
-	}
-	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("error starting kak: %w", err)
-	}
-	if _, err := in.Write([]byte(o.Script.String())); err != nil {
-		return fmt.Errorf("error writing script: %w", err)
-	}
-	if err := in.Close(); err != nil {
-		return fmt.Errorf("closing pipe: %v", err)
-	}
-	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("error responding: %w", err)
-	}
-	return nil
 }
 
 func (s *Service) Run() error {
@@ -66,13 +42,13 @@ func (s *Service) Run() error {
 				publish: func(msg *nats.Msg) error {
 					return nc.PublishMsg(msg)
 				},
-				runKakouneScript: Run,
+				runKakouneScript: kakoune.Run,
 			}
 			action.Execute()
 		case msg := <-clipCh:
 			action := clipChangedAction{
 				msg: msg,
-				runKakouneScript: Run,
+				runKakouneScript: kakoune.Run,
 			}
 			action.Execute()
 		}
