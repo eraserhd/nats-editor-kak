@@ -52,7 +52,7 @@ func (a *openAction) makeOpenScript() kakoune.Command {
 	u, _ := url.Parse(string(a.msg.Data))
         openScript := &OpenScript{
 		Client:         "%opt{jumpclient}",
-		QuotedFilename: quote(u.Path),
+		QuotedFilename: kakoune.Quote(u.Path),
 		Selection: fragment.LineAndColumnSelection{
 			Start: fragment.LineAndColumn{Line: 1, Column: 1},
 			End:   fragment.LineAndColumn{Line: 1, Column: 1},
@@ -87,7 +87,7 @@ func (a *openAction) makeOpenScript() kakoune.Command {
 		result.Session = s
 	}
 	if w := a.msg.Header.Get("Window"); w != "" {
-		openScript.Client = quote(w)
+		openScript.Client = kakoune.Quote(w)
 	}
 	return result
 }
@@ -112,15 +112,4 @@ func (a *openAction) Execute() {
 		log.Printf("error replying ok: %v", err)
 		return
 	}
-}
-
-func quote(s string) string {
-	result := "'"
-	for _, ch := range s {
-		if ch == '\'' {
-			result += "'"
-		}
-		result += string(ch)
-	}
-	return result + "'"
 }
