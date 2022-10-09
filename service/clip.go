@@ -8,6 +8,13 @@ import (
 	"github.com/plugbench/kakoune-pluggo/kakoune"
 )
 
+type SetDquoteRegister struct {
+}
+
+func (s *SetDquoteRegister) String() string {
+	return ""
+}
+
 type clipChangedAction struct {
 	msg              *nats.Msg
 	runKakouneScript func(cmd kakoune.Command) error
@@ -15,5 +22,7 @@ type clipChangedAction struct {
 
 func (a *clipChangedAction) Execute() {
 	log.Printf("recieved clipboard changed event")
-	a.runKakouneScript(kakoune.Command{})
+	a.runKakouneScript(kakoune.Command{
+		Script: &SetDquoteRegister{},
+	})
 }

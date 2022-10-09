@@ -21,4 +21,8 @@ func Test_Updates_dquote_register_when_clip_changed(t *testing.T) {
 	if receivedCmd == nil {
 		t.Fatal("expected to recieve a command to change the dquote register, but did not")
 	}
+	_, ok := receivedCmd.Script.(*SetDquoteRegister)
+	if !ok {
+		t.Fatalf("expected kakoune script to be *SetDquoteRegister, but was %T", receivedCmd.Script)
+	}
 }
