@@ -70,7 +70,7 @@ func (s *Service) Run() error {
 		case msg := <-clipCh:
 			action := clipChangedAction{
 				msg: msg,
-				//FIXME:
+				runKakouneScript: runKakouneScript,
 			}
 			action.Execute()
 		}

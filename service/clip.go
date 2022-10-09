@@ -8,7 +8,7 @@ import (
 
 type clipChangedAction struct {
 	msg              *nats.Msg
-	runKakouneScript func(cmd KakouneCommand)
+	runKakouneScript func(cmd KakouneCommand) error
 }
 
 func (a *clipChangedAction) Execute() {
