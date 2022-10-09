@@ -5,6 +5,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/plugbench/kakoune-pluggo/kakoune"
 )
@@ -20,12 +21,8 @@ func Test_Updates_dquote_register_when_clip_changed(t *testing.T) {
 	}
 	act.msg.Data = []byte("foo\n")
 	act.Execute()
-	if receivedCmd == nil {
-		t.Fatal("expected to recieve a command to change the dquote register, but did not")
-	}
+	require.NotNil(t, receivedCmd, "expected to recieve a command to change the dquote register, but did not")
 	setDquote, ok := receivedCmd.Script.(*SetDquoteRegister)
-	if !ok {
-		t.Fatalf("expected kakoune script to be *SetDquoteRegister, but was %T", receivedCmd.Script)
-	}
+	require.Truef(t, ok, "expected kakoune script to be *SetDquoteRegister, but was %T", receivedCmd.Script)
 	assert.Equal(t, setDquote.Value, "'foo\n'")
 }
