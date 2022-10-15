@@ -7,10 +7,11 @@ import (
 )
 
 type Service struct {
+	KakouneSession string
 }
 
-func New() (*Service, error) {
-	return &Service{}, nil
+func New(kakouneSession string) (*Service, error) {
+	return &Service{KakouneSession: kakouneSession}, nil
 }
 
 func (s *Service) Run() error {
@@ -47,7 +48,7 @@ func (s *Service) Run() error {
 			action.Execute()
 		case msg := <-clipCh:
 			action := clipChangedAction{
-				msg: msg,
+				msg:              msg,
 				runKakouneScript: kakoune.Run,
 			}
 			action.Execute()
