@@ -42,12 +42,7 @@ func (s *OpenFile) String() string {
 	return buf.String()
 }
 
-type showFileURLAction struct {
-	kakouneSession   string
-	msg              *nats.Msg
-	publish          func(msg *nats.Msg) error
-	runKakouneScript func(cmd kakoune.Command) error
-}
+type showFileURLAction action
 
 func (a *showFileURLAction) makeOpenScript() kakoune.Command {
 	u, _ := url.Parse(string(a.msg.Data))

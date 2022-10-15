@@ -5,8 +5,6 @@ import (
 	"log"
 	"text/template"
 
-	"github.com/nats-io/nats.go"
-
 	"github.com/plugbench/kakoune-pluggo/kakoune"
 )
 
@@ -34,11 +32,7 @@ func (s *SetDquoteRegister) String() string {
 	return buf.String()
 }
 
-type clipChangedAction struct {
-	kakouneSession   string
-	msg              *nats.Msg
-	runKakouneScript func(cmd kakoune.Command) error
-}
+type clipChangedAction action
 
 func (a *clipChangedAction) Execute() {
 	log.Printf("recieved clipboard changed event")
