@@ -42,13 +42,13 @@ func (s *OpenFile) String() string {
 	return buf.String()
 }
 
-type openAction struct {
+type showFileURLAction struct {
 	msg              *nats.Msg
 	publish          func(msg *nats.Msg) error
 	runKakouneScript func(cmd kakoune.Command) error
 }
 
-func (a *openAction) makeOpenScript() kakoune.Command {
+func (a *showFileURLAction) makeOpenScript() kakoune.Command {
 	u, _ := url.Parse(string(a.msg.Data))
         openScript := &OpenFile{
 		Client:         "%opt{jumpclient}",
@@ -92,7 +92,7 @@ func (a *openAction) makeOpenScript() kakoune.Command {
 	return result
 }
 
-func (a *openAction) Execute() {
+func (a *showFileURLAction) Execute() {
 	log.Printf("recieved %q", string(a.msg.Data))
 
 	cmd := a.makeOpenScript()

@@ -38,7 +38,7 @@ func (s *Service) Run() error {
 	for {
 		select {
 		case msg := <-fileCh:
-			action := openAction{
+			action := showFileURLAction{
 				msg: msg,
 				publish: func(msg *nats.Msg) error {
 					return nc.PublishMsg(msg)
