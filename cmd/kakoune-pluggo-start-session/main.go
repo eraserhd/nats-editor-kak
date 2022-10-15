@@ -11,7 +11,6 @@ import (
 
 type ScriptParams struct {
 	BinPath string
-	Session string
 }
 
 //go:embed start-session.kak
@@ -28,12 +27,8 @@ func binPath() string {
 }
 
 func main() {
-	if len(os.Args) != 2 {
-		kakoune.Fail("Syntax: kakoune-pluggo-start-session SESSION-NAME")
-	}
 	params := ScriptParams{
 		BinPath: binPath(),
-		Session: os.Args[1],
 	}
 	if err := scriptTemplate.Execute(os.Stdout, params); err != nil {
 		kakoune.Fail(err.Error())
