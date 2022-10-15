@@ -10,6 +10,10 @@ type Service struct {
 	kakouneSession string
 }
 
+type Action interface {
+	Execute()
+}
+
 func New(kakouneSession string) (*Service, error) {
 	return &Service{kakouneSession: kakouneSession}, nil
 }
@@ -43,9 +47,10 @@ func (s *Service) Run() error {
 	defer clipSub.Drain()
 
 	for {
+		var action Action
 		select {
 		case msg := <-fileCh:
-			action := showFileURLAction{
+			action = &showFileURLAction{
 				kakouneSession: s.kakouneSession,
 				msg:            msg,
 				publish: func(msg *nats.Msg) error {
@@ -53,9 +58,8 @@ func (s *Service) Run() error {
 				},
 				runKakouneScript: kakoune.Run,
 			}
-			action.Execute()
 		case msg := <-textCh:
-			action := showTextAction{
+			action = &showTextAction{
 				kakouneSession: s.kakouneSession,
 				msg:            msg,
 				publish: func(msg *nats.Msg) error {
@@ -63,14 +67,13 @@ func (s *Service) Run() error {
 				},
 				runKakouneScript: kakoune.Run,
 			}
-			action.Execute()
 		case msg := <-clipCh:
-			action := clipChangedAction{
+			action = &clipChangedAction{
 				kakouneSession:   s.kakouneSession,
 				msg:              msg,
 				runKakouneScript: kakoune.Run,
 			}
-			action.Execute()
 		}
+		action.Execute()
 	}
 }
