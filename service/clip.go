@@ -35,6 +35,7 @@ func (s *SetDquoteRegister) String() string {
 }
 
 type clipChangedAction struct {
+	kakouneSession   string
 	msg              *nats.Msg
 	runKakouneScript func(cmd kakoune.Command) error
 }
@@ -42,7 +43,7 @@ type clipChangedAction struct {
 func (a *clipChangedAction) Execute() {
 	log.Printf("recieved clipboard changed event")
 	a.runKakouneScript(kakoune.Command{
-		Session: "kakoune",
+		Session: a.kakouneSession,
 		Script: &SetDquoteRegister{
 			Value: kakoune.Quote(string(a.msg.Data)),
 		},
