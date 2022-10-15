@@ -9,8 +9,8 @@ import (
 
 	"github.com/nats-io/nats.go"
 
-	"github.com/plugbench/kakoune-pluggo/service/fragment"
 	"github.com/plugbench/kakoune-pluggo/kakoune"
+	"github.com/plugbench/kakoune-pluggo/service/fragment"
 )
 
 type OpenFile struct {
@@ -43,6 +43,7 @@ func (s *OpenFile) String() string {
 }
 
 type showFileURLAction struct {
+	kakouneSession   string
 	msg              *nats.Msg
 	publish          func(msg *nats.Msg) error
 	runKakouneScript func(cmd kakoune.Command) error
@@ -50,7 +51,7 @@ type showFileURLAction struct {
 
 func (a *showFileURLAction) makeOpenScript() kakoune.Command {
 	u, _ := url.Parse(string(a.msg.Data))
-        openScript := &OpenFile{
+	openScript := &OpenFile{
 		Client:         "%opt{jumpclient}",
 		QuotedFilename: kakoune.Quote(u.Path),
 		Selection: fragment.LineAndColumnSelection{
@@ -60,8 +61,8 @@ func (a *showFileURLAction) makeOpenScript() kakoune.Command {
 		FixupKeys: "''",
 	}
 	result := kakoune.Command{
-		Session: "kakoune",
-		Script: openScript,
+		Session: a.kakouneSession,
+		Script:  openScript,
 	}
 	if frag, err := fragment.ParseRFC5147FragmentIdentifier(u.Fragment); err == nil {
 		if frag, ok := frag.(fragment.LineAndColumnSelection); ok {

@@ -78,7 +78,8 @@ func run(t *testing.T, opts ...runOption) runResult {
 		opt(&result)
 	}
 	act := showFileURLAction{
-		msg: result.msg,
+		kakouneSession: "foosess",
+		msg:            result.msg,
 		publish: func(msg *nats.Msg) error {
 			result.publishedMessages = append(result.publishedMessages, msg)
 			return nil
@@ -97,7 +98,7 @@ func run(t *testing.T, opts ...runOption) runResult {
 
 func Test_Defaults_session_to_kakoune(t *testing.T) {
 	sess := run(t).OpenCommand().Session
-	assert.Equal(t, "kakoune", sess)
+	assert.Equal(t, "foosess", sess)
 }
 
 func Test_Open_uses_editor_session_when_sent(t *testing.T) {

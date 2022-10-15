@@ -7,6 +7,7 @@ import (
 )
 
 type showTextAction struct {
+	kakouneSession   string
 	msg              *nats.Msg
 	publish          func(msg *nats.Msg) error
 	runKakouneScript func(cmd kakoune.Command) error

@@ -46,7 +46,8 @@ func (s *Service) Run() error {
 		select {
 		case msg := <-fileCh:
 			action := showFileURLAction{
-				msg: msg,
+				kakouneSession: s.kakouneSession,
+				msg:            msg,
 				publish: func(msg *nats.Msg) error {
 					return nc.PublishMsg(msg)
 				},
@@ -55,7 +56,8 @@ func (s *Service) Run() error {
 			action.Execute()
 		case msg := <-textCh:
 			action := showTextAction{
-				msg: msg,
+				kakouneSession: s.kakouneSession,
+				msg:            msg,
 				publish: func(msg *nats.Msg) error {
 					return nc.PublishMsg(msg)
 				},
