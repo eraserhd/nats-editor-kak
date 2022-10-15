@@ -106,6 +106,12 @@ func Test_Open_responds_when_this_session_is_requested(t *testing.T) {
 	assert.Equal(t, "this_session", sess)
 }
 
+func Test_Open_ignores_requests_when_a_different_session_is_requested(t *testing.T) {
+	sess := run(t, header("Session", "other_session"))
+	assert.Empty(t, sess.executedScripts)
+	assert.Empty(t, sess.publishedMessages)
+}
+
 func Test_Defaults_client_to_jumpclient_option(t *testing.T) {
 	client := run(t).OpenScript().Client
 	assert.Equal(t, "%opt{jumpclient}", client)
