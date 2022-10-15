@@ -4,6 +4,12 @@ hook -group kakoune-pluggo global RegisterModified '"' %{
     }
 }
 
-nop %sh{
+evaluate-commands %sh{
     {{.BinPath}}/kakoune-pluggo-daemon "$kak_session" </dev/null >/dev/null 2>&1 &
+    daemon_pid=$!
+    printf 'declare-option -hidden str pluggo_daemon_pid "%s"\n' "$daemon_pid"
+}
+
+hook -group kakoune-pluggo global KakEnd .* %{
+    nop %sh{ kill -HUP "$kak_opt_pluggo_daemon_pid" >/dev/null 2>&1 }
 }
