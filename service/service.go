@@ -28,6 +28,13 @@ func (s *Service) Run() error {
 	}
 	defer fileSub.Drain()
 
+	textCh := make(chan *nats.Msg, 32)
+	textSub, err := nc.ChanSubscribe("cmd.show.data.text", textCh)
+	if err != nil {
+		return err
+	}
+	defer textSub.Drain()
+
 	clipCh := make(chan *nats.Msg, 32)
 	clipSub, err := nc.ChanSubscribe("event.changed.clipboard", clipCh)
 	if err != nil {
@@ -39,6 +46,15 @@ func (s *Service) Run() error {
 		select {
 		case msg := <-fileCh:
 			action := showFileURLAction{
+				msg: msg,
+				publish: func(msg *nats.Msg) error {
+					return nc.PublishMsg(msg)
+				},
+				runKakouneScript: kakoune.Run,
+			}
+			action.Execute()
+		case msg := <-textCh:
+			action := showTextAction{
 				msg: msg,
 				publish: func(msg *nats.Msg) error {
 					return nc.PublishMsg(msg)
