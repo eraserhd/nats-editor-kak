@@ -1,6 +1,8 @@
 package service
 
 import (
+	"log"
+
 	"github.com/nats-io/nats.go"
 
 	"github.com/plugbench/kakoune-pluggo/kakoune"
@@ -16,6 +18,19 @@ type action struct {
 	publish          func(msg *nats.Msg) error
 	runKakouneScript func(cmd kakoune.Command) error
 	execute          func(a *action)
+}
+
+func (a *action) dispatch() {
+	switch a.msg.Subject {
+	case "cmd.show.file.url":
+		executeShowFileURL(a)
+	case "cmd.show.data.text":
+		executeShowText(a)
+	case "event.clipboard.changed":
+		executeClipChanged(a)
+	default:
+		log.Fatalf("do not know how to handle %s", a.msg.Subject)
+	}
 }
 
 func New(kakouneSession string) (*Service, error) {
@@ -60,12 +75,9 @@ func (s *Service) Run() error {
 		}
 		select {
 		case act.msg = <-fileCh:
-			act.execute = executeShowFileURL
 		case act.msg = <-textCh:
-			act.execute = executeShowText
 		case act.msg = <-clipCh:
-			act.execute = executeClipChanged
 		}
-		act.execute(&act)
+		act.dispatch()
 	}
 }
