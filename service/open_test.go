@@ -96,20 +96,9 @@ func run(t *testing.T, opts ...runOption) runResult {
 	return result
 }
 
-func Test_Defaults_session_to_kakoune(t *testing.T) {
+func Test_Sends_current_session_name(t *testing.T) {
 	sess := run(t).OpenCommand().Session
 	assert.Equal(t, "this_session", sess)
-}
-
-func Test_Open_responds_when_this_session_is_requested(t *testing.T) {
-	sess := run(t, header("Session", "this_session")).OpenCommand().Session
-	assert.Equal(t, "this_session", sess)
-}
-
-func Test_Open_ignores_requests_when_a_different_session_is_requested(t *testing.T) {
-	sess := run(t, header("Session", "other_session"))
-	assert.Empty(t, sess.executedScripts)
-	assert.Empty(t, sess.publishedMessages)
 }
 
 func Test_Defaults_client_to_jumpclient_option(t *testing.T) {

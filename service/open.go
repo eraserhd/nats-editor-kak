@@ -88,10 +88,6 @@ func (a *showFileURLAction) makeOpenScript() kakoune.Command {
 func (a *showFileURLAction) Execute() {
 	log.Printf("recieved %q", string(a.msg.Data))
 
-	if s := a.msg.Header.Get("Session"); s != "" && s != a.kakouneSession {
-		return
-	}
-
 	cmd := a.makeOpenScript()
 	if err := a.runKakouneScript(cmd); err != nil {
 		log.Print(err)
