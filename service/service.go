@@ -18,10 +18,6 @@ type action struct {
 	execute          func(a *action)
 }
 
-type Action interface {
-	Execute()
-}
-
 func New(kakouneSession string) (*Service, error) {
 	return &Service{kakouneSession: kakouneSession}, nil
 }
