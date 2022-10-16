@@ -43,3 +43,7 @@ func (a *clipChangedAction) Execute() {
 		},
 	})
 }
+
+func executeClipChanged(act *action) {
+	((*clipChangedAction)(act)).Execute()
+}

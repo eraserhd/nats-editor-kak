@@ -106,3 +106,7 @@ func (a *showFileURLAction) Execute() {
 		return
 	}
 }
+
+func executeShowFileURL(a *action) {
+	((*showFileURLAction)(a)).Execute()
+}

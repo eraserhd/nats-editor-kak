@@ -15,6 +15,7 @@ type action struct {
 	msg              *nats.Msg
 	publish          func(msg *nats.Msg) error
 	runKakouneScript func(cmd kakoune.Command) error
+	execute          func(a *action)
 }
 
 type Action interface {
@@ -54,33 +55,21 @@ func (s *Service) Run() error {
 	defer clipSub.Drain()
 
 	for {
-		var action Action
-		select {
-		case msg := <-fileCh:
-			action = &showFileURLAction{
-				kakouneSession: s.kakouneSession,
-				msg:            msg,
-				publish: func(msg *nats.Msg) error {
-					return nc.PublishMsg(msg)
-				},
-				runKakouneScript: kakoune.Run,
-			}
-		case msg := <-textCh:
-			action = &showTextAction{
-				kakouneSession: s.kakouneSession,
-				msg:            msg,
-				publish: func(msg *nats.Msg) error {
-					return nc.PublishMsg(msg)
-				},
-				runKakouneScript: kakoune.Run,
-			}
-		case msg := <-clipCh:
-			action = &clipChangedAction{
-				kakouneSession:   s.kakouneSession,
-				msg:              msg,
-				runKakouneScript: kakoune.Run,
-			}
+		act := action{
+			kakouneSession: s.kakouneSession,
+			publish: func(msg *nats.Msg) error {
+				return nc.PublishMsg(msg)
+			},
+			runKakouneScript: kakoune.Run,
 		}
-		action.Execute()
+		select {
+		case act.msg = <-fileCh:
+			act.execute = executeShowFileURL
+		case act.msg = <-textCh:
+			act.execute = executeShowText
+		case act.msg = <-clipCh:
+			act.execute = executeClipChanged
+		}
+		act.execute(&act)
 	}
 }
