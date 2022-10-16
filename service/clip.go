@@ -32,9 +32,7 @@ func (s *SetDquoteRegister) String() string {
 	return buf.String()
 }
 
-type clipChangedAction action
-
-func (a *clipChangedAction) Execute() {
+func executeClipChanged(a *action) {
 	log.Printf("recieved clipboard changed event")
 	a.runKakouneScript(kakoune.Command{
 		Session: a.kakouneSession,
@@ -42,8 +40,4 @@ func (a *clipChangedAction) Execute() {
 			Value: kakoune.Quote(string(a.msg.Data)),
 		},
 	})
-}
-
-func executeClipChanged(act *action) {
-	((*clipChangedAction)(act)).Execute()
 }
