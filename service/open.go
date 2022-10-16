@@ -42,9 +42,7 @@ func (s *OpenFile) String() string {
 	return buf.String()
 }
 
-type showFileURLAction action
-
-func (a *showFileURLAction) makeOpenScript() kakoune.Command {
+func makeOpenScript(a *action) kakoune.Command {
 	u, _ := url.Parse(string(a.msg.Data))
 	openScript := &OpenFile{
 		Client:         "%opt{jumpclient}",
@@ -85,10 +83,10 @@ func (a *showFileURLAction) makeOpenScript() kakoune.Command {
 	return result
 }
 
-func (a *showFileURLAction) Execute() {
+func executeShowFileURL(a *action) {
 	log.Printf("recieved %q", string(a.msg.Data))
 
-	cmd := a.makeOpenScript()
+	cmd := makeOpenScript(a)
 	if err := a.runKakouneScript(cmd); err != nil {
 		log.Print(err)
 		reply := nats.NewMsg(a.msg.Reply)
@@ -105,8 +103,4 @@ func (a *showFileURLAction) Execute() {
 		log.Printf("error replying ok: %v", err)
 		return
 	}
-}
-
-func executeShowFileURL(a *action) {
-	((*showFileURLAction)(a)).Execute()
 }

@@ -77,7 +77,7 @@ func run(t *testing.T, opts ...runOption) runResult {
 	for _, opt := range opts {
 		opt(&result)
 	}
-	act := showFileURLAction{
+	act := action{
 		kakouneSession: "this_session",
 		msg:            result.msg,
 		publish: func(msg *nats.Msg) error {
@@ -91,8 +91,9 @@ func run(t *testing.T, opts ...runOption) runResult {
 			result.executedScripts = append(result.executedScripts, cmd)
 			return nil
 		},
+		execute: executeShowFileURL,
 	}
-	act.Execute()
+	act.execute(&act)
 	return result
 }
 
