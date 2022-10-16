@@ -20,7 +20,7 @@ type runResult struct {
 	publishedMessages []*nats.Msg
 }
 
-func (result runResult) OpenCommand() kakoune.Command {
+func (result runResult) kakouneCommand() kakoune.Command {
 	if len(result.executedScripts) != 1 {
 		result.t.Fatalf("expected 1 script to be executed, but got %d", len(result.executedScripts))
 	}
@@ -28,7 +28,7 @@ func (result runResult) OpenCommand() kakoune.Command {
 }
 
 func (result runResult) OpenScript() OpenFile {
-	sc := result.OpenCommand().Script
+	sc := result.kakouneCommand().Script
 	if sc, ok := sc.(*OpenFile); ok {
 		return *sc
 	}
@@ -101,7 +101,7 @@ func run(t *testing.T, subject string, opts ...runOption) runResult {
 }
 
 func Test_Sends_current_session_name(t *testing.T) {
-	sess := run(t, "cmd.show.file.url").OpenCommand().Session
+	sess := run(t, "cmd.show.file.url").kakouneCommand().Session
 	assert.Equal(t, "this_session", sess)
 }
 

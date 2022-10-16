@@ -7,6 +7,6 @@ import (
 )
 
 func Test_sends_current_session_name(t *testing.T) {
-	sess := run(t, "cmd.show.data.text").OpenCommand().Session
+	sess := run(t, "cmd.show.data.text").kakouneCommand().Session
 	assert.Equal(t, "this_session", sess)
 }
