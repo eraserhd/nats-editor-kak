@@ -10,6 +10,13 @@ type Service struct {
 	kakouneSession string
 }
 
+type action struct {
+	kakouneSession   string
+	msg              *nats.Msg
+	publish          func(msg *nats.Msg) error
+	runKakouneScript func(cmd kakoune.Command) error
+}
+
 type Action interface {
 	Execute()
 }
