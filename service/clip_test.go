@@ -19,10 +19,9 @@ func Test_Updates_dquote_register_when_clip_changed(t *testing.T) {
 			receivedCmd = &cmd
 			return nil
 		},
-		execute: executeClipChanged,
 	}
 	act.msg.Data = []byte("foo\n")
-	act.execute(&act)
+	act.dispatch()
 	require.NotNil(t, receivedCmd, "expected to recieve a command to change the dquote register, but did not")
 	setDquote, ok := receivedCmd.Script.(*SetDquoteRegister)
 	require.Truef(t, ok, "expected kakoune script to be *SetDquoteRegister, but was %T", receivedCmd.Script)

@@ -17,7 +17,6 @@ type action struct {
 	msg              *nats.Msg
 	publish          func(msg *nats.Msg) error
 	runKakouneScript func(cmd kakoune.Command) error
-	execute          func(a *action)
 }
 
 func (a *action) dispatch() {
@@ -26,7 +25,7 @@ func (a *action) dispatch() {
 		executeShowFileURL(a)
 	case "cmd.show.data.text":
 		executeShowText(a)
-	case "event.clipboard.changed":
+	case "event.changed.clipboard":
 		executeClipChanged(a)
 	default:
 		log.Fatalf("do not know how to handle %s", a.msg.Subject)
