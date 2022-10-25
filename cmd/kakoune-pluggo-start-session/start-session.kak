@@ -19,14 +19,16 @@ hook -group kakoune-pluggo global KakEnd .* %{
 }
 
 define-command -hidden -params 1 kakoune-pluggo-set-dquote %{
-    evaluate-commands -try-client %opt{pluggo_last_yank_client} %sh{
-        {{.BinPath}}/kakoune-pluggo-event 'event.logged.kakoune-pluggo.debug' "setting from '$kak_main_reg_dquote' to '$1'" 2>/dev/null
-        if [ "$1" = "$kak_main_reg_dquote" ]; then
-            {{.BinPath}}/kakoune-pluggo-event 'event.logged.kakoune-pluggo.debug' "skipping update" 2>/dev/null
-            exit 0
-        fi
-        printf "set-register dquote '"
-        printf %s "$1" |sed -e "s/'/''/g"
-        printf "'\n"
+    evaluate-commands -try-client %opt{pluggo_last_yank_client} %{
+        evaluate-commands %sh{
+            {{.BinPath}}/kakoune-pluggo-event 'event.logged.kakoune-pluggo.debug' "setting from '$kak_main_reg_dquote' to '$1'" 2>/dev/null
+            if [ "$1" = "$kak_main_reg_dquote" ]; then
+                {{.BinPath}}/kakoune-pluggo-event 'event.logged.kakoune-pluggo.debug' "skipping update" 2>/dev/null
+                exit 0
+            fi
+            printf "set-register dquote '"
+            printf %s "$1" |sed -e "s/'/''/g"
+            printf "'\n"
+        }
     }
 }
