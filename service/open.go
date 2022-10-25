@@ -3,7 +3,6 @@ package service
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"net/url"
 	"text/template"
 
@@ -84,15 +83,15 @@ func makeOpenScript(a *action) kakoune.Command {
 }
 
 func executeShowFileURL(a *action) {
-	log.Printf("recieved %q", string(a.msg.Data))
+	a.log("info", fmt.Sprintf("recieved %q", string(a.msg.Data)))
 
 	cmd := makeOpenScript(a)
 	if err := a.runKakouneScript(cmd); err != nil {
-		log.Print(err)
+		a.log("error", fmt.Sprintf("error making script: %v", err))
 		reply := nats.NewMsg(a.msg.Reply)
 		reply.Data = []byte(fmt.Sprintf("ERROR: %s", err.Error()))
 		if err := a.publish(reply); err != nil {
-			log.Printf("error responding: %v", err)
+			a.log("error", fmt.Sprintf("error responding: %v", err))
 		}
 		return
 	}
@@ -100,7 +99,7 @@ func executeShowFileURL(a *action) {
 	reply := nats.NewMsg(a.msg.Reply)
 	reply.Data = []byte("ok")
 	if err := a.publish(reply); err != nil {
-		log.Printf("error replying ok: %v", err)
+		a.log("error", fmt.Sprintf("error replying ok: %v", err))
 		return
 	}
 }

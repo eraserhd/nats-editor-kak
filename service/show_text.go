@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/plugbench/kakoune-pluggo/kakoune"
 )
 
@@ -13,6 +15,7 @@ func (s *showText) String() string {
 }
 
 func executeShowText(act *action) {
+	act.log("info", fmt.Sprintf("received text to show: %q", string(act.msg.Data)))
 	cmd := kakoune.Command{
 		Session: act.kakouneSession,
 		Script: &showText{
