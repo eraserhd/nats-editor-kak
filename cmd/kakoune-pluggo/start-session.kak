@@ -3,7 +3,7 @@ declare-option -hidden str pluggo_last_yank_client %val{client}
 hook -group kakoune-pluggo global RegisterModified '"' %{
     set-option global pluggo_last_yank_client %val{client}
     evaluate-commands %sh{
-        {{.BinPath}}/kakoune-pluggo-command cmd.put.clipboard "$kak_main_reg_dquote"
+        {{.BinPath}}/kakoune-pluggo command cmd.put.clipboard "$kak_main_reg_dquote"
     }
 }
 

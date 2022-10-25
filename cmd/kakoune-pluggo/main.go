@@ -2,9 +2,13 @@ package main
 
 import (
 	_ "embed"
+	"errors"
 	"fmt"
 	"os"
 	"text/template"
+	"time"
+
+	"github.com/nats-io/nats.go"
 
 	"github.com/plugbench/kakoune-pluggo/kakoune"
 	"github.com/plugbench/kakoune-pluggo/service"
@@ -15,8 +19,10 @@ Syntax:
   kakoune-pluggo SUBCOMMAND [OPTIONS...]
 
 Subcommands:
-  start-session       Print Kakoune initialization script and exit.  Intended to be invoked as
-                      "evaluate-commands %sh{kakoune-pluggo start-session}".
+  command SUBJECT DATA  Send nats command to SUBJECT, wait for and print a reply.
+
+  start-session         Print Kakoune initialization script and exit.  Intended to be invoked as
+                        "evaluate-commands %sh{kakoune-pluggo start-session}".
 `
 
 type ScriptParams struct {
@@ -27,6 +33,28 @@ type ScriptParams struct {
 var templateSource string
 
 var scriptTemplate = template.Must(template.New("start-session.kak").Parse(templateSource))
+
+func sendCommand(subject, data string) error {
+	nc, err := nats.Connect(nats.DefaultURL)
+	if err != nil {
+		return err
+	}
+	defer nc.Close()
+
+	req := nats.NewMsg(subject)
+	req.Data = []byte(data)
+
+	response, err := nc.RequestMsg(req, 3*time.Second)
+	if err != nil {
+		return err
+	}
+
+	if string(response.Data) != "ok" {
+		return errors.New(string(response.Data))
+	}
+
+	return nil
+}
 
 func main() {
 	if len(os.Args) < 2 {
@@ -39,6 +67,14 @@ func main() {
 			BinPath: service.BinPath(),
 		}
 		if err := scriptTemplate.Execute(os.Stdout, params); err != nil {
+			kakoune.Fail(err.Error())
+		}
+
+	case "command":
+		if len(os.Args) != 4 {
+			kakoune.Fail("wrong argument count, see help")
+		}
+		if err := sendCommand(os.Args[2], os.Args[3]); err != nil {
 			kakoune.Fail(err.Error())
 		}
 
