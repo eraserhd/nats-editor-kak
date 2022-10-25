@@ -19,7 +19,9 @@ Syntax:
   kakoune-pluggo SUBCOMMAND [OPTIONS...]
 
 Subcommands:
-  command SUBJECT DATA  Send nats command to SUBJECT, wait for and print a reply.
+  command SUBJECT DATA  Send NATS command to SUBJECT, wait for and print a reply.
+
+  event SUBJECT DATA    Send NATS event to SUBJECT.
 
   start-session         Print Kakoune initialization script and exit.  Intended to be invoked as
                         "evaluate-commands %sh{kakoune-pluggo start-session}".
@@ -56,25 +58,51 @@ func sendCommand(subject, data string) error {
 	return nil
 }
 
+func sendEvent(subject, data string) error {
+	nc, err := nats.Connect(nats.DefaultURL)
+	if err != nil {
+		return err
+	}
+	defer nc.Close()
+
+	req := nats.NewMsg(subject)
+	req.Data = []byte(data)
+
+	if err := nc.PublishMsg(req); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println(help)
 		os.Exit(1)
 	}
 	switch os.Args[1] {
-	case "start-session":
-		params := ScriptParams{
-			BinPath: service.BinPath(),
-		}
-		if err := scriptTemplate.Execute(os.Stdout, params); err != nil {
-			kakoune.Fail(err.Error())
-		}
-
 	case "command":
 		if len(os.Args) != 4 {
 			kakoune.Fail("wrong argument count, see help")
 		}
 		if err := sendCommand(os.Args[2], os.Args[3]); err != nil {
+			kakoune.Fail(err.Error())
+		}
+
+	case "event":
+		if len(os.Args) != 4 {
+			kakoune.Fail("wrong argument count, see help")
+		}
+		if err := sendEvent(os.Args[2], os.Args[3]); err != nil {
+			kakoune.Fail(err.Error())
+		}
+
+
+	case "start-session":
+		params := ScriptParams{
+			BinPath: service.BinPath(),
+		}
+		if err := scriptTemplate.Execute(os.Stdout, params); err != nil {
 			kakoune.Fail(err.Error())
 		}
 
