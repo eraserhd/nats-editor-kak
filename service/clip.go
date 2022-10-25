@@ -9,13 +9,16 @@ import (
 )
 
 type SetDquoteRegister struct {
-	Value string
+	BinPath string
+	Value   string
 }
 
 var setDquoteTempl = template.Must(template.New("script").Parse(`
   define-command -override -hidden -params 1 kakoune-pluggo-set-dquote %{
     evaluate-commands %sh{
+      {{.BinPath}}/kakoune-pluggo-event 'event.logged.kakoune-pluggo.debug' "setting from '$kak_main_reg_dquote' to '$1'" 2>/dev/null
       if [ "$1" = "$kak_main_reg_dquote" ]; then
+        {{.BinPath}}/kakoune-pluggo-event 'event.logged.kakoune-pluggo.debug' "skipping update" 2>/dev/null
         exit 0
       fi
       printf "set-register dquote '"
