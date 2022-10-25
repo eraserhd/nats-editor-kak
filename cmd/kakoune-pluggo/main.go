@@ -30,7 +30,7 @@ Subcommands:
 `
 
 type ScriptParams struct {
-	BinPath string
+	PluggoBin string
 }
 
 //go:embed start-session.kak
@@ -114,7 +114,7 @@ func main() {
 
 	case "start-session":
 		params := ScriptParams{
-			BinPath: service.BinPath(),
+			PluggoBin: service.PluggoBin(),
 		}
 		if err := scriptTemplate.Execute(os.Stdout, params); err != nil {
 			kakoune.Fail(err.Error())
