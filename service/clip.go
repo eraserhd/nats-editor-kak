@@ -40,7 +40,8 @@ func executeClipChanged(a *action) {
 	a.runKakouneScript(kakoune.Command{
 		Session: a.kakouneSession,
 		Script: &SetDquoteRegister{
-			Value: kakoune.Quote(string(a.msg.Data)),
+			BinPath: BinPath(),
+			Value:   kakoune.Quote(string(a.msg.Data)),
 		},
 	})
 }
