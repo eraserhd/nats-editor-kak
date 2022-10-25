@@ -95,6 +95,8 @@ func run(t *testing.T, subject string, opts ...runOption) runResult {
 			result.executedScripts = append(result.executedScripts, cmd)
 			return nil
 		},
+		log: func(level, text string) {
+		},
 	}
 	act.dispatch()
 	return result

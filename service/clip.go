@@ -15,7 +15,10 @@ type SetDquoteRegister struct {
 var setDquoteTempl = template.Must(template.New("script").Parse(`
   define-command -override -hidden -params 1 kakoune-pluggo-set-dquote %{
     evaluate-commands %sh{
+      printf 'kp entered, arg = %s\n' "$1" >&2
+      printf 'kp ......., var = %s\n' "$kak_main_reg_dquote" >&2
       if [ "$1" = "$kak_main_reg_dquote" ]; then
+        printf 'kp exit\n' >&2
         exit 0
       fi
       printf "set-register dquote '"

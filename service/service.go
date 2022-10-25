@@ -17,6 +17,7 @@ type action struct {
 	msg              *nats.Msg
 	publish          func(msg *nats.Msg) error
 	runKakouneScript func(cmd kakoune.Command) error
+	log              func(level, text string)
 }
 
 func (a *action) dispatch() {
@@ -71,6 +72,11 @@ func (s *Service) Run() error {
 				return nc.PublishMsg(msg)
 			},
 			runKakouneScript: kakoune.Run,
+			log: func(level, text string) {
+				msg := nats.NewMsg("event.logged.kakoune-pluggo." + level)
+				msg.Data = []byte(text)
+				nc.PublishMsg(msg)
+			},
 		}
 		select {
 		case act.msg = <-fileCh:

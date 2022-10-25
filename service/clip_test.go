@@ -19,6 +19,8 @@ func Test_Updates_dquote_register_when_clip_changed(t *testing.T) {
 			receivedCmd = &cmd
 			return nil
 		},
+		log: func(level, text string) {
+		},
 	}
 	act.msg.Data = []byte("foo\n")
 	act.dispatch()
