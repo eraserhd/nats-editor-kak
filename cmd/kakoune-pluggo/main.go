@@ -21,6 +21,8 @@ Syntax:
 Subcommands:
   command SUBJECT DATA  Send NATS command to SUBJECT, wait for and print a reply.
 
+  daemon SESSION        Run the daemon for Kakoune SESSION.
+
   event SUBJECT DATA    Send NATS event to SUBJECT.
 
   start-session         Print Kakoune initialization script and exit.  Intended to be invoked as
@@ -89,6 +91,19 @@ func main() {
 			kakoune.Fail(err.Error())
 		}
 
+	case "daemon":
+		if len(os.Args) != 3 {
+			kakoune.Fail("wrong argument count, see help")
+		}
+		session := os.Args[1]
+		es, err := service.New(session)
+		if err != nil {
+			kakoune.Fail(err.Error())
+		}
+		if err := es.Run(); err != nil {
+			kakoune.Fail(err.Error())
+		}
+
 	case "event":
 		if len(os.Args) != 4 {
 			kakoune.Fail("wrong argument count, see help")
@@ -96,7 +111,6 @@ func main() {
 		if err := sendEvent(os.Args[2], os.Args[3]); err != nil {
 			kakoune.Fail(err.Error())
 		}
-
 
 	case "start-session":
 		params := ScriptParams{

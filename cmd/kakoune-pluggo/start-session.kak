@@ -8,7 +8,7 @@ hook -group kakoune-pluggo global RegisterModified '"' %{
 }
 
 evaluate-commands %sh{
-    {{.BinPath}}/kakoune-pluggo-daemon "$kak_session" </dev/null >/dev/null 2>&1 &
+    {{.BinPath}}/kakoune-pluggo daemon "$kak_session" </dev/null >/dev/null 2>&1 &
     daemon_pid=$!
     printf 'declare-option -hidden str pluggo_daemon_pid "%s"\n' "$daemon_pid"
     {{.BinPath}}/kakoune-pluggo event "event.logged.kakoune-pluggo.info" "pid for session $kak_session is $daemon_pid"
