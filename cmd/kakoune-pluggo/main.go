@@ -95,7 +95,7 @@ func main() {
 		if len(os.Args) != 3 {
 			kakoune.Fail("wrong argument count, see help")
 		}
-		session := os.Args[1]
+		session := os.Args[2]
 		es, err := service.New(session)
 		if err != nil {
 			kakoune.Fail(err.Error())

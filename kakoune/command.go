@@ -26,7 +26,7 @@ func Run(o Command) error {
 		return fmt.Errorf("closing pipe: %v", err)
 	}
 	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("error responding: %w", err)
+		return fmt.Errorf("error waiting for process exit: %w", err)
 	}
 	return nil
 }

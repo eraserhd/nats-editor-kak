@@ -87,7 +87,7 @@ func executeShowFileURL(a *action) {
 
 	cmd := makeOpenScript(a)
 	if err := a.runKakouneScript(cmd); err != nil {
-		a.log("error", fmt.Sprintf("error making script: %v", err))
+		a.log("error", fmt.Sprintf("error running open script: %v", err))
 		reply := nats.NewMsg(a.msg.Reply)
 		reply.Data = []byte(fmt.Sprintf("ERROR: %s", err.Error()))
 		if err := a.publish(reply); err != nil {

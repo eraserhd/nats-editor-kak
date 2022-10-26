@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/nats-io/nats.go"
@@ -60,18 +61,23 @@ func (s *Service) Run() error {
 		defer sub.Drain()
 	}
 
+	logFn := func(level, text string) {
+		msg := nats.NewMsg("event.logged.kakoune-pluggo." + level)
+		msg.Data = []byte(text)
+		nc.PublishMsg(msg)
+	}
+
 	for {
 		act := action{
 			kakouneSession: s.kakouneSession,
 			publish: func(msg *nats.Msg) error {
 				return nc.PublishMsg(msg)
 			},
-			runKakouneScript: kakoune.Run,
-			log: func(level, text string) {
-				msg := nats.NewMsg("event.logged.kakoune-pluggo." + level)
-				msg.Data = []byte(text)
-				nc.PublishMsg(msg)
+			runKakouneScript: func(script kakoune.Command) error {
+				logFn("debug", fmt.Sprintf("sending script to session: %s\n%s", script.Session, script.Script.String()))
+				return kakoune.Run(script)
 			},
+			log: logFn,
 		}
 		select {
 		case act.msg = <-chs[0]:
