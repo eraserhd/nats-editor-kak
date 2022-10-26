@@ -4,3 +4,4 @@ Changes
 Unreleased
 ----------
 
+* Back to one binary

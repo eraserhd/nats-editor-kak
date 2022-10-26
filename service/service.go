@@ -20,17 +20,23 @@ type action struct {
 	log              func(level, text string)
 }
 
+var channelHandlers = []struct {
+	subject string
+	handler func(a *action)
+}{
+	{"cmd.show.url.file", executeShowFileURL},
+	{"cmd.show.data.text", executeShowText},
+	{"event.changed.clipboard", executeClipChanged},
+}
+
 func (a *action) dispatch() {
-	switch a.msg.Subject {
-	case "cmd.show.file.url":
-		executeShowFileURL(a)
-	case "cmd.show.data.text":
-		executeShowText(a)
-	case "event.changed.clipboard":
-		executeClipChanged(a)
-	default:
-		log.Fatalf("do not know how to handle %s", a.msg.Subject)
+	for _, h := range channelHandlers {
+		if a.msg.Subject == h.subject {
+			h.handler(a)
+			return
+		}
 	}
+	log.Fatalf("do not know how to handle %s", a.msg.Subject)
 }
 
 func New(kakouneSession string) (*Service, error) {
@@ -44,26 +50,15 @@ func (s *Service) Run() error {
 	}
 	defer nc.Close()
 
-	fileCh := make(chan *nats.Msg, 32)
-	fileSub, err := nc.ChanSubscribe("cmd.show.url.file", fileCh)
-	if err != nil {
-		return err
+	chs := make([]chan *nats.Msg, len(channelHandlers))
+	for i, h := range channelHandlers {
+		chs[i] = make(chan *nats.Msg, 32)
+		sub, err := nc.ChanSubscribe(h.subject, chs[i])
+		if err != nil {
+			return err
+		}
+		defer sub.Drain()
 	}
-	defer fileSub.Drain()
-
-	textCh := make(chan *nats.Msg, 32)
-	textSub, err := nc.ChanSubscribe("cmd.show.data.text", textCh)
-	if err != nil {
-		return err
-	}
-	defer textSub.Drain()
-
-	clipCh := make(chan *nats.Msg, 32)
-	clipSub, err := nc.ChanSubscribe("event.changed.clipboard", clipCh)
-	if err != nil {
-		return err
-	}
-	defer clipSub.Drain()
 
 	for {
 		act := action{
@@ -79,9 +74,9 @@ func (s *Service) Run() error {
 			},
 		}
 		select {
-		case act.msg = <-fileCh:
-		case act.msg = <-textCh:
-		case act.msg = <-clipCh:
+		case act.msg = <-chs[0]:
+		case act.msg = <-chs[1]:
+		case act.msg = <-chs[2]:
 		}
 		act.dispatch()
 	}
