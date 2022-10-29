@@ -28,3 +28,8 @@ func Test_sends_quoted_text(t *testing.T) {
 	text := run(t, "cmd.show.data.text", data("hell'o world")).showTextScript().Text
 	assert.Equal(t, "'hell''o world'", text)
 }
+
+func Test_sends_ok_reply(t *testing.T) {
+        msg := run(t, "cmd.show.data.text", data("hell'o world")).Reply()
+        assert.Equal(t, "ok", string(msg.Data))
+}

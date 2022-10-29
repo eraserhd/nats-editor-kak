@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"text/template"
 
+	"github.com/nats-io/nats.go"
+
 	"github.com/plugbench/kakoune-pluggo/kakoune"
 )
 
@@ -54,14 +56,18 @@ func (s *showText) String() string {
 	return buf.String()
 }
 
-func executeShowText(act *action) {
-	act.log("info", fmt.Sprintf("received text to show: %q", string(act.msg.Data)))
+func executeShowText(a *action) {
+	a.log("info", fmt.Sprintf("received text to show: %q", string(a.msg.Data)))
 	cmd := kakoune.Command{
-		Session: act.kakouneSession,
+		Session: a.kakouneSession,
 		Script: &showText{
 			Client: "%opt{jumpclient}",
-			Text:   kakoune.Quote(string(act.msg.Data)),
+			Text:   kakoune.Quote(string(a.msg.Data)),
 		},
 	}
-	act.runKakouneScript(cmd)
+	a.runKakouneScript(cmd)
+
+	reply := nats.NewMsg(a.msg.Reply)
+	reply.Data = []byte("ok")
+	a.publish(reply)
 }
