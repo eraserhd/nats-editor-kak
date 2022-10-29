@@ -26,7 +26,7 @@ Subcommands:
   event SUBJECT DATA    Send NATS event to SUBJECT.
 
   start-session         Print Kakoune initialization script and exit.  Intended to be invoked as
-                        "evaluate-commands %sh{kakoune-pluggo start-session}".
+                        "evaluate-commands %%sh{kakoune-pluggo start-session}".
 `
 
 type ScriptParams struct {
@@ -79,7 +79,7 @@ func sendEvent(subject, data string) error {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println(help)
+		fmt.Printf(help)
 		os.Exit(1)
 	}
 	switch os.Args[1] {
@@ -121,7 +121,7 @@ func main() {
 		}
 
 	default:
-		fmt.Println(help)
+		fmt.Printf(help)
 		os.Exit(1)
 	}
 }
