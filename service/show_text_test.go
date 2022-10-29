@@ -23,3 +23,8 @@ func Test_defaults_client_to_jumpclient(t *testing.T) {
 	client := run(t, "cmd.show.data.text").showTextScript().Client
 	assert.Equal(t, "%opt{jumpclient}", client)
 }
+
+func Test_sends_quoted_text(t *testing.T) {
+	text := run(t, "cmd.show.data.text", data("hell'o world")).showTextScript().Text
+	assert.Equal(t, "'hell''o world'", text)
+}
