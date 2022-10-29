@@ -30,6 +30,11 @@ func Test_sends_quoted_text(t *testing.T) {
 }
 
 func Test_sends_ok_reply(t *testing.T) {
-        msg := run(t, "cmd.show.data.text", data("hell'o world")).Reply()
-        assert.Equal(t, "ok", string(msg.Data))
+	msg := run(t, "cmd.show.data.text", data("hell'o world")).Reply()
+	assert.Equal(t, "ok", string(msg.Data))
+}
+
+func Test_sends_base(t *testing.T) {
+	base := run(t, "cmd.show.data.text", header("Base", "file://foo/bar/baz/")).showTextScript().Base
+	assert.Equal(t, "'file://foo/bar/baz/'", base)
 }

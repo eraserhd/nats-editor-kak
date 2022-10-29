@@ -66,8 +66,6 @@ Switches:
     }
 }
 
-declare-option -hidden str-list plumb_saved_d
-
 define-command -hidden plumb-click-WORD %{
     execute-keys 'Z[<a-w>"lyz<a-i><a-w>'
     plumb -attr %sh{

@@ -13,6 +13,7 @@ import (
 type showText struct {
 	Client string
 	Text   string
+	Base   string
 }
 
 var showTextTempl = template.Must(template.New("script").Parse(`
@@ -41,6 +42,7 @@ var showTextTempl = template.Must(template.New("script").Parse(`
         fi
       }
       set-register t {{.Text}}
+      set-option buffer plumb_wdir {{.Base}}
       execute-keys '%"tRgk'
       try focus
     } catch %{
@@ -63,6 +65,7 @@ func executeShowText(a *action) {
 		Script: &showText{
 			Client: "%opt{jumpclient}",
 			Text:   kakoune.Quote(string(a.msg.Data)),
+			Base:   kakoune.Quote(a.msg.Header.Get("Base")),
 		},
 	}
 	a.runKakouneScript(cmd)
