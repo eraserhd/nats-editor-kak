@@ -41,7 +41,7 @@ var showTextTempl = template.Must(template.New("script").Parse(`
         fi
       }
       set-register t {{.Text}}
-      execute-keys '%"tR'
+      execute-keys '%"tRgk'
       try focus
     } catch %{
       echo -markup "{Error}%val{error}"
