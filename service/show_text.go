@@ -17,7 +17,7 @@ type showText struct {
 }
 
 var showTextTempl = template.Must(template.New("script").Parse(`
-  kakoune-pluggo-show-text {{.Client}} {{.Text}} {{.Base}}
+  pluggo-show-text {{.Client}} {{.Text}} {{.Base}}
 `))
 
 func (s *showText) String() string {

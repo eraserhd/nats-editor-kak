@@ -19,7 +19,7 @@ hook -group pluggo global KakEnd .* %{
     nop %sh{ kill -HUP "$kak_opt_pluggo_daemon_pid" >/dev/null 2>&1 }
 }
 
-define-command -override -hidden -params 1 kakoune-pluggo-set-dquote %{
+define-command -override -hidden -params 1 pluggo-set-dquote %{
     evaluate-commands -try-client %opt{pluggo_last_yank_client} %{
         evaluate-commands %sh{
             "$kak_opt_pluggo_bin" event 'event.logged.kakoune-pluggo.debug' "setting from '$kak_main_reg_dquote' to '$1'" 2>/dev/null
@@ -34,7 +34,7 @@ define-command -override -hidden -params 1 kakoune-pluggo-set-dquote %{
     }
 }
 
-define-command -override -hidden -params 3 kakoune-pluggo-show-text %{
+define-command -override -hidden -params 3 pluggo-show-text %{
     evaluate-commands -save-regs t -try-client "%arg{1}" %{
         try %{
             evaluate-commands %sh{

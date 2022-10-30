@@ -13,7 +13,7 @@ type SetDquoteRegister struct {
 }
 
 var setDquoteTempl = template.Must(template.New("script").Parse(`
-  kakoune-pluggo-set-dquote {{.Value}}
+  pluggo-set-dquote {{.Value}}
 `))
 
 func (s *SetDquoteRegister) String() string {
