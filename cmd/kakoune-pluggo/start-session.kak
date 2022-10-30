@@ -19,10 +19,14 @@ hook -group pluggo global KakEnd .* %{
     nop %sh{ kill -HUP "$kak_opt_pluggo_daemon_pid" >/dev/null 2>&1 }
 }
 
-define-command -override -hidden -params 1 pluggo-set-dquote %{
+define-command \
+    -override \
+    -hidden \
+    -params 1 \
+    pluggo-set-dquote %{
     evaluate-commands -try-client %opt{pluggo_last_yank_client} %{
         evaluate-commands %sh{
-            "$kak_opt_pluggo_bin" event 'event.logged.kakoune-pluggo.debug' "setting from '$kak_main_reg_dquote' to '$1'" 2>/dev/null
+    "$kak_opt_pluggo_bin" event 'event.logged.kakoune-pluggo.debug' "setting from '$kak_main_reg_dquote' to '$1'" 2>/dev/null
             if [ "$1" = "$kak_main_reg_dquote" ]; then
                 "$kak_opt_pluggo_bin" event 'event.logged.kakoune-pluggo.debug' "skipping update" 2>/dev/null
                 exit 0
@@ -30,6 +34,25 @@ define-command -override -hidden -params 1 pluggo-set-dquote %{
             printf "set-register dquote '"
             printf %s "$1" |sed -e "s/'/''/g"
             printf "'\n"
+        }
+    }
+}
+
+define-command \
+    -override \
+    -hidden \
+    -params 4 \
+    -docstring %{pluggo-open <client> <filename> <selection> <fixupkeys>} \
+    pluggo-open %{
+    evaluate-commands -try-client "%arg{1}" %{
+        try %{
+            edit -existing "%arg{2}"
+            select -codepoint "%arg{3}"
+            execute-keys "%arg{4}"
+            try focus
+        } catch %{
+            echo -markup "{Error}%val{error}"
+            echo -debug "%val{error}"
         }
     }
 }

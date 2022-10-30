@@ -20,19 +20,7 @@ type OpenFile struct {
 }
 
 var openFileTempl = template.Must(template.New("script").Parse(`
-  evaluate-commands -try-client {{.Client}} %{
-    try %{
-      edit -existing {{.QuotedFilename}}
-      select -codepoint {{.Selection.Start.Line}}.{{.Selection.Start.Column}},{{.Selection.End.Line}}.{{.Selection.End.Column}}
-      {{ if ne .FixupKeys "" -}}
-      execute-keys {{.FixupKeys}}
-      {{- end }}
-      try focus
-    } catch %{
-      echo -markup "{Error}%val{error}"
-      echo -debug "%val{error}"
-    }
-  }
+ pluggo-open {{.Client}} {{.QuortedFilename}} {{.Selection.Start.Line}}.{{.Selection.Start.Column}},{{.Selection.End.Line}}.{{.Selection.End.Column}} {{.FixupKeys}}
 `))
 
 func (s *OpenFile) String() string {
