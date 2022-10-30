@@ -1,7 +1,7 @@
 declare-option -hidden str pluggo_last_yank_client %val{client}
 declare-option -hidden str pluggo_bin '{{.PluggoBin}}'
 
-hook -group kakoune-pluggo global RegisterModified '"' %{
+hook -group pluggo global RegisterModified '"' %{
     set-option global pluggo_last_yank_client %val{client}
     evaluate-commands %sh{
         "$kak_opt_pluggo_bin" command cmd.put.clipboard "$kak_main_reg_dquote"
@@ -15,7 +15,7 @@ evaluate-commands %sh{
     "$kak_opt_pluggo_bin" event "event.logged.kakoune-pluggo.info" "pid for session $kak_session is $daemon_pid"
 }
 
-hook -group kakoune-pluggo global KakEnd .* %{
+hook -group pluggo global KakEnd .* %{
     nop %sh{ kill -HUP "$kak_opt_pluggo_daemon_pid" >/dev/null 2>&1 }
 }
 
