@@ -1,9 +1,7 @@
 package service
 
 import (
-	"bytes"
 	"fmt"
-	"text/template"
 
 	"github.com/nats-io/nats.go"
 
@@ -16,14 +14,8 @@ type showText struct {
 	Base   string
 }
 
-var showTextTempl = template.Must(template.New("script").Parse(`
-  pluggo-show-text {{.Client}} {{.Text}} {{.Base}}
-`))
-
 func (s *showText) String() string {
-	buf := &bytes.Buffer{}
-	showTextTempl.Execute(buf, s)
-	return buf.String()
+	return fmt.Sprintf("pluggo-show-text %s %s %s", s.Client, s.Text, s.Base)
 }
 
 func executeShowText(a *action) {

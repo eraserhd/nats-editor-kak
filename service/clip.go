@@ -1,9 +1,7 @@
 package service
 
 import (
-	"bytes"
 	"fmt"
-	"text/template"
 
 	"github.com/plugbench/kakoune-pluggo/kakoune"
 )
@@ -12,14 +10,8 @@ type SetDquoteRegister struct {
 	Value string
 }
 
-var setDquoteTempl = template.Must(template.New("script").Parse(`
-  pluggo-clip {{.Value}}
-`))
-
 func (s *SetDquoteRegister) String() string {
-	buf := &bytes.Buffer{}
-	_ = setDquoteTempl.Execute(buf, s)
-	return buf.String()
+	return fmt.Sprintf("pluggo-clip %s", s.Value)
 }
 
 func executeClipChanged(a *action) {
