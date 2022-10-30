@@ -23,7 +23,7 @@ define-command \
     -override \
     -hidden \
     -params 1 \
-    pluggo-set-dquote %{
+    pluggo-clip %{
     evaluate-commands -try-client %opt{pluggo_last_yank_client} %{
         evaluate-commands %sh{
     "$kak_opt_pluggo_bin" event 'event.logged.kakoune-pluggo.debug' "setting from '$kak_main_reg_dquote' to '$1'" 2>/dev/null
