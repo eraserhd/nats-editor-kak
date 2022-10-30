@@ -17,39 +17,7 @@ type showText struct {
 }
 
 var showTextTempl = template.Must(template.New("script").Parse(`
-  evaluate-commands -save-regs t -try-client {{.Client}} %{
-    try %{
-      evaluate-commands %sh{
-        have_show=false
-        next_n=0
-        eval set -- "$kak_quoted_buflist"
-        for buf in "$@"; do
-          case "$buf" in
-            "*show*")
-              have_show=true
-              ;;
-            "*show-"*"*")
-              n_part=${buf%"*"}
-              n_part=${n_part#"*"show-}
-              next_n=$(( n_part >= next_n ? n_part + 1 : next_n ))
-              ;;
-          esac
-        done
-        if [ "$have_show" = false ]; then
-          printf 'edit -scratch *show*\n'
-        else
-          printf 'edit -scratch *show-%d*\n' "$next_n"
-        fi
-      }
-      set-register t {{.Text}}
-      set-option buffer plumb_wdir {{.Base}}
-      execute-keys '%"tRgk'
-      try focus
-    } catch %{
-      echo -markup "{Error}%val{error}"
-      echo -debug "%val{error}"
-    }
-  }
+  kakoune-pluggo-show-text {{.Client}} {{.Text}} {{.Base}}
 `))
 
 func (s *showText) String() string {
