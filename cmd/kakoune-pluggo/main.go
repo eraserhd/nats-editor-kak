@@ -6,10 +6,9 @@ import (
 	"os"
 	"text/template"
 
-
 	"github.com/plugbench/kakoune-pluggo/kakoune"
-	"github.com/plugbench/nats_cli"
 	"github.com/plugbench/kakoune-pluggo/service"
+	"github.com/plugbench/nats_cli"
 )
 
 const help = `
@@ -42,7 +41,11 @@ func main() {
 		fmt.Printf(help)
 		os.Exit(1)
 	}
-	nats := nats_cli.LoadConfigFromEnvironment()
+	nats, err := nats_cli.LoadConfigFromEnvironment()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
+	}
 	switch os.Args[1] {
 	case "command":
 		if len(os.Args) != 4 {
