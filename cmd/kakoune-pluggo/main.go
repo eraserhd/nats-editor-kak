@@ -8,7 +8,7 @@ import (
 
 
 	"github.com/plugbench/kakoune-pluggo/kakoune"
-	knats "github.com/plugbench/kakoune-pluggo/nats"
+	"github.com/plugbench/nats_cli"
 	"github.com/plugbench/kakoune-pluggo/service"
 )
 
@@ -29,7 +29,7 @@ Subcommands:
 
 type ScriptParams struct {
 	PluggoBin string
-	Nats      knats.Config
+	Nats      nats_cli.Config
 }
 
 //go:embed start-session.kak
@@ -42,7 +42,7 @@ func main() {
 		fmt.Printf(help)
 		os.Exit(1)
 	}
-	nats := knats.LoadConfigFromEnvironment()
+	nats := nats_cli.LoadConfigFromEnvironment()
 	switch os.Args[1] {
 	case "command":
 		if len(os.Args) != 4 {

@@ -7,11 +7,11 @@ import (
 	"github.com/nats-io/nats.go"
 
 	"github.com/plugbench/kakoune-pluggo/kakoune"
-	natsConfig "github.com/plugbench/kakoune-pluggo/nats"
+	"github.com/plugbench/nats_cli"
 )
 
 type Service struct {
-	natsConfig     natsConfig.Config
+	natsConfig     nats_cli.Config
 	kakouneSession string
 }
 
@@ -42,8 +42,11 @@ func (a *action) dispatch() {
 	log.Fatalf("do not know how to handle %s", a.msg.Subject)
 }
 
-func New(natsCfg natsConfig.Config, kakouneSession string) (*Service, error) {
-	return &Service{kakouneSession: kakouneSession}, nil
+func New(natsCfg nats_cli.Config, kakouneSession string) (*Service, error) {
+	return &Service{
+		natsConfig:     natsCfg,
+		kakouneSession: kakouneSession,
+	}, nil
 }
 
 func (s *Service) Run() error {
