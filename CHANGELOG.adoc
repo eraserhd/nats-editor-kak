@@ -4,4 +4,5 @@ Changes
 Unreleased
 ----------
 
-* Back to one binary
+* Honor $NATS_TOKEN.
+* Back to one binary.

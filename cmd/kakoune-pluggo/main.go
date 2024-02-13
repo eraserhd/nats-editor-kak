@@ -2,15 +2,13 @@ package main
 
 import (
 	_ "embed"
-	"errors"
 	"fmt"
 	"os"
 	"text/template"
-	"time"
 
-	"github.com/nats-io/nats.go"
 
 	"github.com/plugbench/kakoune-pluggo/kakoune"
+	knats "github.com/plugbench/kakoune-pluggo/nats"
 	"github.com/plugbench/kakoune-pluggo/service"
 )
 
@@ -31,6 +29,7 @@ Subcommands:
 
 type ScriptParams struct {
 	PluggoBin string
+	Nats      knats.Config
 }
 
 //go:embed start-session.kak
@@ -38,56 +37,18 @@ var templateSource string
 
 var scriptTemplate = template.Must(template.New("start-session.kak").Parse(templateSource))
 
-func sendCommand(subject, data string) error {
-	nc, err := nats.Connect(nats.DefaultURL)
-	if err != nil {
-		return err
-	}
-	defer nc.Close()
-
-	req := nats.NewMsg(subject)
-	req.Data = []byte(data)
-
-	response, err := nc.RequestMsg(req, 3*time.Second)
-	if err != nil {
-		return err
-	}
-
-	if string(response.Data) != "ok" {
-		return errors.New(string(response.Data))
-	}
-
-	return nil
-}
-
-func sendEvent(subject, data string) error {
-	nc, err := nats.Connect(nats.DefaultURL)
-	if err != nil {
-		return err
-	}
-	defer nc.Close()
-
-	req := nats.NewMsg(subject)
-	req.Data = []byte(data)
-
-	if err := nc.PublishMsg(req); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Printf(help)
 		os.Exit(1)
 	}
+	nats := knats.LoadConfigFromEnvironment()
 	switch os.Args[1] {
 	case "command":
 		if len(os.Args) != 4 {
 			kakoune.Fail("wrong argument count, see help")
 		}
-		if err := sendCommand(os.Args[2], os.Args[3]); err != nil {
+		if err := nats.SendCommand(os.Args[2], os.Args[3]); err != nil {
 			kakoune.Fail(err.Error())
 		}
 
@@ -96,7 +57,7 @@ func main() {
 			kakoune.Fail("wrong argument count, see help")
 		}
 		session := os.Args[2]
-		es, err := service.New(session)
+		es, err := service.New(nats, session)
 		if err != nil {
 			kakoune.Fail(err.Error())
 		}
@@ -108,13 +69,14 @@ func main() {
 		if len(os.Args) != 4 {
 			kakoune.Fail("wrong argument count, see help")
 		}
-		if err := sendEvent(os.Args[2], os.Args[3]); err != nil {
+		if err := nats.SendEvent(os.Args[2], os.Args[3]); err != nil {
 			kakoune.Fail(err.Error())
 		}
 
 	case "start-session":
 		params := ScriptParams{
 			PluggoBin: service.PluggoBin(),
+			Nats:      nats,
 		}
 		if err := scriptTemplate.Execute(os.Stdout, params); err != nil {
 			kakoune.Fail(err.Error())
